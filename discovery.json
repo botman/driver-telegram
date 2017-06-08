@@ -1,0 +1,13 @@
+{
+    "botman/driver-config": [
+        "stubs/telegram.php"
+    ],
+    "botman/driver": [
+        "BotMan\\Drivers\\Telegram\\TelegramDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramAudioDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramFileDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramLocationDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramPhotoDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramVideoDriver"
+    ]
+}
