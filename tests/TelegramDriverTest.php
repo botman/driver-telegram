@@ -19,6 +19,13 @@ use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 
 class TelegramDriverTest extends PHPUnit_Framework_TestCase
 {
+
+    protected $telegramConfig = [
+        'telegram' => [
+            'token' => 'TELEGRAM-BOT-TOKEN',
+        ]
+    ];
+
     public function tearDown()
     {
         m::close();
@@ -281,9 +288,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn('');
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
         $botman->say('Test', '12345', $driver);
 
         $this->assertInstanceOf(TelegramDriver::class, $botman->getDriver());
@@ -326,9 +331,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $this->assertSame('FooBar', $driver->getConversationAnswer($message)->getText());
@@ -364,9 +367,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload('Test', $message));
@@ -421,9 +422,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload($question, $message));
@@ -479,9 +478,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload($question, $message));
@@ -517,9 +514,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload('Test', $message, [
@@ -534,14 +529,14 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request->shouldReceive('getContent')->andReturn('');
         $htmlInterface = m::mock(Curl::class);
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $htmlInterface);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $htmlInterface);
 
         $this->assertTrue($driver->isConfigured());
 
         $driver = new TelegramDriver($request, [
-            'telegram_token' => null,
+            'telegram' => [
+                'token' => null
+            ]
         ], $htmlInterface);
 
         $this->assertFalse($driver->isConfigured());
@@ -580,9 +575,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test'), $message));
@@ -618,9 +611,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', Image::url('http://image.url/foo.png')), $message));
@@ -656,9 +647,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', Image::url('http://image.url/foo.gif')), $message));
@@ -694,9 +683,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', Video::url('http://image.url/foo.mp4')), $message));
@@ -732,9 +719,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test',
@@ -771,9 +756,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', File::url('http://image.url/foo.pdf')), $message));
@@ -810,9 +793,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-        $driver = new TelegramDriver($request, [
-            'telegram_token' => 'TELEGRAM-BOT-TOKEN',
-        ], $html);
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Location('123', '321')), $message));

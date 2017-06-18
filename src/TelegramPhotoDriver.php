@@ -42,7 +42,7 @@ class TelegramPhotoDriver extends TelegramDriver
     {
         $photos = $this->event->get('photo');
         $largetstPhoto = array_pop($photos);
-        $response = $this->http->get('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/getFile', [
+        $response = $this->http->get('https://api.telegram.org/bot'.$this->config->get('token').'/getFile', [
             'file_id' => $largetstPhoto['file_id'],
         ]);
 
@@ -52,7 +52,7 @@ class TelegramPhotoDriver extends TelegramDriver
         // This need a proper logging and exception system in the future
         $url = null;
         if (isset($path->result)) {
-            $url = 'https://api.telegram.org/file/bot'.$this->config->get('telegram_token').'/'.$path->result->file_path;
+            $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
         }
 
         return [new Image($url, $largetstPhoto)];

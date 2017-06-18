@@ -31,6 +31,7 @@ class TelegramDriver extends HttpDriver
     {
         $this->payload = new ParameterBag((array) json_decode($request->getContent(), true));
         $this->event = Collection::make($this->payload->get('message'));
+        $this->config = Collection::make($this->config->get('telegram'));
     }
 
     /**
@@ -44,7 +45,7 @@ class TelegramDriver extends HttpDriver
             'user_id' => $matchingMessage->getSender(),
         ];
 
-        $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/getChatMember',
+        $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/getChatMember',
             [], $parameters);
         $responseData = json_decode($response->getContent(), true);
         $userData = Collection::make($responseData['result']['user']);
@@ -129,7 +130,7 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
             'action' => 'typing',
         ];
-        $this->http->post('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/sendChatAction', [],
+        $result = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
             $parameters);
     }
 
@@ -169,7 +170,7 @@ class TelegramDriver extends HttpDriver
             'inline_keyboard' => [],
         ];
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/editMessageReplyMarkup',
+        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/editMessageReplyMarkup',
             [], $parameters);
     }
 
@@ -236,7 +237,7 @@ class TelegramDriver extends HttpDriver
      */
     public function sendPayload($payload)
     {
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/'.$this->endpoint,
+        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$this->endpoint,
             [], $payload);
     }
 
@@ -245,7 +246,7 @@ class TelegramDriver extends HttpDriver
      */
     public function isConfigured()
     {
-        return ! empty($this->config->get('telegram_token'));
+        return ! empty($this->config->get('token'));
     }
 
     /**
@@ -262,7 +263,7 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
         ], $parameters);
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/'.$endpoint, [],
+        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$endpoint, [],
             $parameters);
     }
 }
