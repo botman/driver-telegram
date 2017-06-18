@@ -36,6 +36,5 @@
     "scripts": {
         "test": "vendor/bin/phpunit",
         "cs": "php-cs-fixer fix"
-    },
-    "minimum-stability": "dev"
+    }
 }
