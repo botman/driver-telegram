@@ -43,7 +43,7 @@ class TelegramAudioDriver extends TelegramDriver
         if ($this->event->has('voice')) {
             $audio = $this->event->get('voice');
         }
-        $response = $this->http->get('https://api.telegram.org/bot'.$this->config->get('telegram_token').'/getFile', [
+        $response = $this->http->get('https://api.telegram.org/bot'.$this->config->get('token').'/getFile', [
             'file_id' => $audio['file_id'],
         ]);
 
@@ -53,7 +53,7 @@ class TelegramAudioDriver extends TelegramDriver
         // This need a proper logging and exception system in the future
         $url = null;
         if (isset($path->result)) {
-            $url = 'https://api.telegram.org/file/bot'.$this->config->get('telegram_token').'/'.$path->result->file_path;
+            $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
         }
 
         return [new Audio($url, $audio)];
