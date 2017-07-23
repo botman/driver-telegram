@@ -7,23 +7,22 @@ use BotMan\BotMan\Http\Curl;
 use PHPUnit_Framework_TestCase;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\ArrayCache;
+use BotMan\Drivers\Telegram\TelegramDriver;
 use BotMan\BotMan\Messages\Attachments\File;
-use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Attachments\Audio;
 use BotMan\BotMan\Messages\Attachments\Image;
 use BotMan\BotMan\Messages\Attachments\Video;
 use BotMan\BotMan\Messages\Outgoing\Question;
+use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Attachments\Location;
-use BotMan\Drivers\Telegram\TelegramDriver;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 
 class TelegramDriverTest extends PHPUnit_Framework_TestCase
 {
-
     protected $telegramConfig = [
         'telegram' => [
             'token' => 'TELEGRAM-BOT-TOKEN',
-        ]
+        ],
     ];
 
     public function tearDown()
@@ -535,8 +534,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver = new TelegramDriver($request, [
             'telegram' => [
-                'token' => null
-            ]
+                'token' => null,
+            ],
         ], $htmlInterface);
 
         $this->assertFalse($driver->isConfigured());
