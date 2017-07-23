@@ -2,6 +2,10 @@
 
 BotMan driver to connect Telegram with [BotMan](https://github.com/botman/botman)
 
+[![Latest Version on Packagist](https://img.shields.io/packagist/v/botman/driver-telegram.svg?style=flat-square)](https://packagist.org/packages/botman/driver-telegram)
+[![Build Status](https://travis-ci.org/botman/driver-telegram.svg?branch=master)](https://travis-ci.org/botman/driver-telegram)
+[![codecov](https://codecov.io/gh/botman/driver-telegram/branch/master/graph/badge.svg)](https://codecov.io/gh/botman/driver-telegram)
+
 ## Contributing
 
 Please see [CONTRIBUTING](CONTRIBUTING.md) for details.
