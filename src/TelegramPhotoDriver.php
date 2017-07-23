@@ -2,8 +2,8 @@
 
 namespace BotMan\Drivers\Telegram;
 
-use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Attachments\Image;
+use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 
 class TelegramPhotoDriver extends TelegramDriver
