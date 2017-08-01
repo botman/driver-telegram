@@ -4,6 +4,7 @@ namespace BotMan\Drivers\Telegram;
 
 use BotMan\BotMan\Messages\Attachments\Audio;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 
 class TelegramAudioDriver extends TelegramDriver
 {
@@ -33,10 +34,11 @@ class TelegramAudioDriver extends TelegramDriver
         return [$message];
     }
 
-    /**
-     * Retrieve a image from an incoming message.
-     * @return array A download for the audio file.
-     */
+	/**
+	 * Retrieve a image from an incoming message.
+	 * @return array A download for the audio file.
+	 * @throws TelegramAttachmentException
+	 */
     private function getAudio()
     {
         $audio = $this->event->get('audio');
@@ -49,11 +51,10 @@ class TelegramAudioDriver extends TelegramDriver
 
         $path = json_decode($response->getContent());
 
-        // In case of file too large, this return only the attachment with the original payload, not the link.
-        // This need a proper logging and exception system in the future
-        $url = null;
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
+        } else {
+        	throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new Audio($url, $audio)];
