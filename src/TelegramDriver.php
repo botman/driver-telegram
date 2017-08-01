@@ -51,7 +51,7 @@ class TelegramDriver extends HttpDriver
         $userData = Collection::make($responseData['result']['user']);
 
         return new User($userData->get('id'), $userData->get('first_name'), $userData->get('last_name'),
-            $userData->get('username'));
+            $userData->get('username'), $userData->toArray());
     }
 
     /**
@@ -68,6 +68,20 @@ class TelegramDriver extends HttpDriver
         return $noAttachments && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query'))) && ! is_null($this->payload->get('update_id'));
     }
 
+
+	/**
+	 * This hide the inline keyboard, if is an interactive message.
+	 */
+	public function messagesHandled() {
+    	$callback = $this->payload->get('callback_query');
+
+	    if ($callback !== null) {
+		    $callback['message']['chat']['id'];
+		    $this->removeInlineKeyboard($callback['message']['chat']['id'],
+			    $callback['message']['message_id']);
+	    }
+    }
+
     /**
      * @param  \BotMan\BotMan\Messages\Incoming\IncomingMessage $message
      * @return Answer
@@ -76,10 +90,6 @@ class TelegramDriver extends HttpDriver
     {
         if ($this->payload->get('callback_query') !== null) {
             $callback = Collection::make($this->payload->get('callback_query'));
-
-            // Update original message
-            $this->removeInlineKeyboard($callback->get('message')['chat']['id'],
-                $callback->get('message')['message_id']);
 
             return Answer::create($callback->get('data'))
                 ->setInteractiveReply(true)
@@ -122,7 +132,7 @@ class TelegramDriver extends HttpDriver
 
     /**
      * @param IncomingMessage $matchingMessage
-     * @return void
+     * @return Response
      */
     public function types(IncomingMessage $matchingMessage)
     {
@@ -130,7 +140,7 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
             'action' => 'typing',
         ];
-        $result = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
+        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
             $parameters);
     }
 

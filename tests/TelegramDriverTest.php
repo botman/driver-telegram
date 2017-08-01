@@ -2,6 +2,9 @@
 
 namespace Tests;
 
+use BotMan\BotMan\Drivers\Tests\FakeDriver;
+use BotMan\BotMan\Messages\Incoming\IncomingMessage;
+use Illuminate\Support\Collection;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use PHPUnit_Framework_TestCase;
@@ -294,7 +297,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function it_returns_answer_from_interactive_messages_and_edits_original_message()
+    public function it_returns_answer_from_interactive_messages()
     {
         $responseData = [
             'update_id' => '1234567890',
@@ -319,13 +322,6 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         ];
 
         $html = m::mock(Curl::class);
-        $html->shouldReceive('post')
-            ->twice()
-            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/editMessageReplyMarkup', [], [
-                'chat_id' => 'chat_id',
-                'message_id' => '123',
-                'inline_keyboard' => [],
-            ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
@@ -335,6 +331,49 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $message = $driver->getMessages()[0];
         $this->assertSame('FooBar', $driver->getConversationAnswer($message)->getText());
         $this->assertSame($message, $driver->getConversationAnswer($message)->getMessage());
+    }
+
+    /** @test */
+    public function it_hides_keyboard()
+    {
+	    $responseData = [
+		    'update_id' => '1234567890',
+		    'callback_query' => [
+			    'id' => '11717237123',
+			    'from' => [
+				    'id' => 'from_id',
+			    ],
+			    'message' => [
+				    'message_id' => '123',
+				    'from' => [
+					    'id' => 'from_id',
+				    ],
+				    'chat' => [
+					    'id' => '1234',
+				    ],
+				    'date' => '1480369277',
+				    'text' => 'Telegram Text',
+			    ],
+			    'data' => 'FooBar',
+		    ],
+	    ];
+
+	    $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/editMessageReplyMarkup', [], [
+                'chat_id' => '1234',
+                'message_id' => '123',
+                'inline_keyboard' => [],
+            ]);
+
+
+	    $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+	    $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+	    $driver = new TelegramDriver($request, $this->telegramConfig, $html);
+
+	    $driver->messagesHandled();
     }
 
     /** @test */
