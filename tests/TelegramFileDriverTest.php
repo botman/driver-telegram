@@ -9,6 +9,7 @@ use BotMan\BotMan\Messages\Attachments\File;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use BotMan\Drivers\Telegram\TelegramFileDriver;
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 
 class TelegramFileDriverTest extends PHPUnit_Framework_TestCase
 {
@@ -135,5 +136,37 @@ class TelegramFileDriverTest extends PHPUnit_Framework_TestCase
         $this->assertSame([
             'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
         ], $message->getFiles()[0]->getPayload());
+    }
+
+    /** @test */
+    public function it_throws_exception_in_get_attachment_url()
+    {
+        $response = new Response('{"ok":false,"error_code":400,"description":"Bad Request: file is too big"}', 400);
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('get')->with('https://api.telegram.org/bot/getFile', [
+            'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+        ])->andReturn($response);
+
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'document' => [
+                    'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+                ],
+            ],
+        ], $htmlInterface);
+
+        try {
+            $driver->getMessages()[0];
+        } catch (\Throwable $t) {
+            $this->assertSame(TelegramAttachmentException::class, get_class($t));
+        }
     }
 }

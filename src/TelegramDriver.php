@@ -17,6 +17,7 @@ use BotMan\BotMan\Messages\Attachments\Location;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\BotMan\Messages\Outgoing\OutgoingMessage;
+use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 
 class TelegramDriver extends HttpDriver
 {
@@ -36,7 +37,8 @@ class TelegramDriver extends HttpDriver
 
     /**
      * @param IncomingMessage $matchingMessage
-     * @return \BotMan\BotMan\Users\User
+     * @return User
+     * @throws TelegramException
      */
     public function getUser(IncomingMessage $matchingMessage)
     {
@@ -47,7 +49,13 @@ class TelegramDriver extends HttpDriver
 
         $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/getChatMember',
             [], $parameters);
+
         $responseData = json_decode($response->getContent(), true);
+
+        if ($response->getStatusCode() !== 200) {
+            throw new TelegramException($responseData['description']);
+        }
+
         $userData = Collection::make($responseData['result']['user']);
 
         return new User($userData->get('id'), $userData->get('first_name'), $userData->get('last_name'),
@@ -207,7 +215,7 @@ class TelegramDriver extends HttpDriver
                 'inline_keyboard' => $this->convertQuestion($message),
             ], true);
         } elseif ($message instanceof OutgoingMessage) {
-            if (! is_null($message->getAttachment())) {
+            if ($message->getAttachment() !== null) {
                 $attachment = $message->getAttachment();
                 $parameters['caption'] = $message->getText();
                 if ($attachment instanceof Image) {
@@ -217,6 +225,10 @@ class TelegramDriver extends HttpDriver
                     } else {
                         $this->endpoint = 'sendPhoto';
                         $parameters['photo'] = $attachment->getUrl();
+                    }
+                    // If has a title, overwrite the caption
+                    if ($attachment->getTitle() !== null) {
+                        $parameters['caption'] = $attachment->getTitle();
                     }
                 } elseif ($attachment instanceof Video) {
                     $this->endpoint = 'sendVideo';
