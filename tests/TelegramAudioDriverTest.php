@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use PHPUnit_Framework_TestCase;
@@ -205,5 +206,37 @@ class TelegramAudioDriverTest extends PHPUnit_Framework_TestCase
             'mime_type' => 'audio/x-m4a"',
             'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
         ], $message->getAudio()[0]->getPayload());
+    }
+
+    /** @test */
+    public function it_throws_exception_in_get_attachment_url() {
+	    $response = new Response('{"ok":false,"error_code":400,"description":"Bad Request: file is too big"}',400);
+	    $htmlInterface = m::mock(Curl::class);
+	    $htmlInterface->shouldReceive('get')->with('https://api.telegram.org/bot/getFile', [
+		    'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+	    ])->andReturn($response);
+
+	    $driver = $this->getDriver([
+		    'update_id' => '1234567890',
+		    'message' => [
+			    'message_id' => '123',
+			    'from' => [
+				    'id' => 'from_id',
+			    ],
+			    'chat' => [
+				    'id' => 'chat_id',
+			    ],
+			    'audio' => [
+				    'mime_type' => 'audio/x-m4a"',
+				    'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+			    ],
+		    ],
+	    ], $htmlInterface);
+
+	    try {
+	    	$driver->getMessages()[0];
+	    } catch (\Throwable $t){
+	    	$this->assertSame(TelegramAttachmentException::class, get_class($t));
+	    }
     }
 }

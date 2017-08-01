@@ -49,13 +49,13 @@ class TelegramAudioDriver extends TelegramDriver
             'file_id' => $audio['file_id'],
         ]);
 
-        $path = json_decode($response->getContent());
+	    $responseData = json_decode($response->getContent());
 
-        if (isset($path->result)) {
-            $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
-        } else {
-            throw new TelegramAttachmentException('File too large (max 20 MB).');
-        }
+	    if ($response->getStatusCode() !== 200) {
+		    throw new TelegramAttachmentException($responseData->description);
+	    }
+
+	    $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$responseData->result->file_path;
 
         return [new Audio($url, $audio)];
     }
