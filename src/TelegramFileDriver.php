@@ -4,6 +4,7 @@ namespace BotMan\Drivers\Telegram;
 
 use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 
 class TelegramFileDriver extends TelegramDriver
 {
@@ -33,10 +34,11 @@ class TelegramFileDriver extends TelegramDriver
         return [$message];
     }
 
-    /**
-     * Retrieve a file from an incoming message.
-     * @return array A download for the files.
-     */
+	/**
+	 * Retrieve a file from an incoming message.
+	 * @return array A download for the files.
+	 * @throws TelegramAttachmentException
+	 */
     private function getFiles()
     {
         $file = $this->event->get('document');
@@ -47,11 +49,10 @@ class TelegramFileDriver extends TelegramDriver
 
         $path = json_decode($response->getContent());
 
-        // In case of file too large, this return only the attachment with the original payload, not the link.
-        // This need a proper logging and exception system in the future
-        $url = null;
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
+        } else {
+	        throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new File($url, $file)];

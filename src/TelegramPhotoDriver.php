@@ -3,6 +3,7 @@
 namespace BotMan\Drivers\Telegram;
 
 use BotMan\BotMan\Messages\Attachments\Image;
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 
@@ -34,10 +35,11 @@ class TelegramPhotoDriver extends TelegramDriver
         return [$message];
     }
 
-    /**
-     * Retrieve a image from an incoming message.
-     * @return array A download for the image file.
-     */
+	/**
+	 * Retrieve a image from an incoming message.
+	 * @return array A download for the image file.
+	 * @throws TelegramAttachmentException
+	 */
     private function getImages()
     {
         $photos = $this->event->get('photo');
@@ -48,11 +50,10 @@ class TelegramPhotoDriver extends TelegramDriver
 
         $path = json_decode($response->getContent());
 
-        // In case of file too large, this return only the attachment with the original payload, not the link.
-        // This need a proper logging and exception system in the future
-        $url = null;
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
+        } else {
+	        throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new Image($url, $largetstPhoto)];
