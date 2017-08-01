@@ -34,11 +34,11 @@ class TelegramAudioDriver extends TelegramDriver
         return [$message];
     }
 
-	/**
-	 * Retrieve a image from an incoming message.
-	 * @return array A download for the audio file.
-	 * @throws TelegramAttachmentException
-	 */
+    /**
+     * Retrieve a image from an incoming message.
+     * @return array A download for the audio file.
+     * @throws TelegramAttachmentException
+     */
     private function getAudio()
     {
         $audio = $this->event->get('audio');
@@ -54,7 +54,7 @@ class TelegramAudioDriver extends TelegramDriver
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
         } else {
-        	throw new TelegramAttachmentException('File too large (max 20 MB).');
+            throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new Audio($url, $audio)];

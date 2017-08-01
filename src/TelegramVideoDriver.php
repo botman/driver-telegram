@@ -34,11 +34,11 @@ class TelegramVideoDriver extends TelegramDriver
         return [$message];
     }
 
-	/**
-	 * Retrieve a image from an incoming message.
-	 * @return array A download for the image file.
-	 * @throws TelegramAttachmentException
-	 */
+    /**
+     * Retrieve a image from an incoming message.
+     * @return array A download for the image file.
+     * @throws TelegramAttachmentException
+     */
     private function getVideos()
     {
         $video = $this->event->get('video');
@@ -51,7 +51,7 @@ class TelegramVideoDriver extends TelegramDriver
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
         } else {
-	        throw new TelegramAttachmentException('File too large (max 20 MB).');
+            throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new Video($url, $video)];

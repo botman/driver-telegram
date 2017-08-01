@@ -1,7 +1,7 @@
 <?php
+
 namespace BotMan\Drivers\Telegram\Exceptions;
 
-
-class TelegramAttachmentException extends TelegramException {
-
+class TelegramAttachmentException extends TelegramException
+{
 }

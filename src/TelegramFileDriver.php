@@ -34,11 +34,11 @@ class TelegramFileDriver extends TelegramDriver
         return [$message];
     }
 
-	/**
-	 * Retrieve a file from an incoming message.
-	 * @return array A download for the files.
-	 * @throws TelegramAttachmentException
-	 */
+    /**
+     * Retrieve a file from an incoming message.
+     * @return array A download for the files.
+     * @throws TelegramAttachmentException
+     */
     private function getFiles()
     {
         $file = $this->event->get('document');
@@ -52,7 +52,7 @@ class TelegramFileDriver extends TelegramDriver
         if (isset($path->result)) {
             $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
         } else {
-	        throw new TelegramAttachmentException('File too large (max 20 MB).');
+            throw new TelegramAttachmentException('File too large (max 20 MB).');
         }
 
         return [new File($url, $file)];
