@@ -50,12 +50,11 @@ class TelegramPhotoDriver extends TelegramDriver
 
         $responseData = json_decode($response->getContent());
 
-	    if ($response->getStatusCode() !== 200) {
-		    throw new TelegramAttachmentException($responseData->description);
-	    }
+        if ($response->getStatusCode() !== 200) {
+            throw new TelegramAttachmentException($responseData->description);
+        }
 
         $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$responseData->result->file_path;
-
 
         return [new Image($url, $largetstPhoto)];
     }

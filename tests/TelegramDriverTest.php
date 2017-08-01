@@ -2,11 +2,9 @@
 
 namespace Tests;
 
-use BotMan\BotMan\Users\User;
-use BotMan\Drivers\Telegram\Exceptions\TelegramException;
-use Illuminate\Support\Collection;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
+use BotMan\BotMan\Users\User;
 use PHPUnit_Framework_TestCase;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\ArrayCache;
@@ -17,9 +15,10 @@ use BotMan\BotMan\Messages\Attachments\Image;
 use BotMan\BotMan\Messages\Attachments\Video;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use BotMan\BotMan\Messages\Attachments\Location;
 use BotMan\BotMan\Messages\Outgoing\Actions\Button;
-use Symfony\Component\HttpFoundation\Response;
+use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 
 class TelegramDriverTest extends PHPUnit_Framework_TestCase
 {
@@ -802,75 +801,75 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Location('123', '321')), $message));
     }
 
-	/** @test */
-	public function it_throws_exception_in_get_user() {
-		$response = new Response('{"ok":false,"error_code":400,"description":"Bad Request: wrong user_id specified"}',400);
+    /** @test */
+    public function it_throws_exception_in_get_user()
+    {
+        $response = new Response('{"ok":false,"error_code":400,"description":"Bad Request: wrong user_id specified"}', 400);
 
-		$htmlInterface = m::mock(Curl::class);
-		$htmlInterface->shouldReceive('post')->with('https://api.telegram.org/bot/getChatMember', [], [
-			'chat_id' => '12345',
-			'user_id' => 'from_id',
-		])->andReturn($response);
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/bot/getChatMember', [], [
+            'chat_id' => '12345',
+            'user_id' => 'from_id',
+        ])->andReturn($response);
 
-		$driver = $this->getDriver([
-			'update_id' => '1234567890',
-			'message' => [
-				'message_id' => '123',
-				'from' => [
-					'id' => 'from_id',
-				],
-				'chat' => [
-					'id' => '12345',
-				],
-				'date' => '1480369277',
-				'text' => 'Telegram Text',
-			],
-		], $htmlInterface);
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ], $htmlInterface);
 
-		try {
-			$driver->getUser($driver->getMessages()[0]);
-		} catch (\Throwable $t){
-			$this->assertSame(TelegramException::class, get_class($t));
-		}
-	}
+        try {
+            $driver->getUser($driver->getMessages()[0]);
+        } catch (\Throwable $t) {
+            $this->assertSame(TelegramException::class, get_class($t));
+        }
+    }
 
-	/** @test */
-	public function it_return_the_user() {
-		$response = new Response('{"ok":true,"result":{"user":{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"},"status":"member"}}');
+    /** @test */
+    public function it_return_the_user()
+    {
+        $response = new Response('{"ok":true,"result":{"user":{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"},"status":"member"}}');
 
-		$htmlInterface = m::mock(Curl::class);
-		$htmlInterface->shouldReceive('post')->with('https://api.telegram.org/bot/getChatMember', [], [
-			'chat_id' => '12345',
-			'user_id' => 'from_id',
-		])->andReturn($response);
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/bot/getChatMember', [], [
+            'chat_id' => '12345',
+            'user_id' => 'from_id',
+        ])->andReturn($response);
 
-		$driver = $this->getDriver([
-			'update_id' => '1234567890',
-			'message' => [
-				'message_id' => '123',
-				'from' => [
-					'id' => 'from_id',
-				],
-				'chat' => [
-					'id' => '12345',
-				],
-				'date' => '1480369277',
-				'text' => 'Telegram Text',
-			],
-		], $htmlInterface);
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ], $htmlInterface);
 
-		$user = $driver->getUser($driver->getMessages()[0]);
+        $user = $driver->getUser($driver->getMessages()[0]);
 
-		$this->assertEquals(
-			new User(12345,
-				'Mario',
-				'Rossi',
-				'MRossi',
-				json_decode('{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"}', true)
-			),
-			$user
-		);
-
-	}
-
+        $this->assertEquals(
+            new User(12345,
+                'Mario',
+                'Rossi',
+                'MRossi',
+                json_decode('{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"}', true)
+            ),
+            $user
+        );
+    }
 }

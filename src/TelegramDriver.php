@@ -3,7 +3,6 @@
 namespace BotMan\Drivers\Telegram;
 
 use BotMan\BotMan\Users\User;
-use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 use Illuminate\Support\Collection;
 use BotMan\BotMan\Drivers\HttpDriver;
 use BotMan\BotMan\Messages\Incoming\Answer;
@@ -18,6 +17,7 @@ use BotMan\BotMan\Messages\Attachments\Location;
 use Symfony\Component\HttpFoundation\ParameterBag;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\BotMan\Messages\Outgoing\OutgoingMessage;
+use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 
 class TelegramDriver extends HttpDriver
 {
@@ -35,11 +35,11 @@ class TelegramDriver extends HttpDriver
         $this->config = Collection::make($this->config->get('telegram'));
     }
 
-	/**
-	 * @param IncomingMessage $matchingMessage
-	 * @return User
-	 * @throws TelegramException
-	 */
+    /**
+     * @param IncomingMessage $matchingMessage
+     * @return User
+     * @throws TelegramException
+     */
     public function getUser(IncomingMessage $matchingMessage)
     {
         $parameters = [
@@ -50,10 +50,10 @@ class TelegramDriver extends HttpDriver
         $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/getChatMember',
             [], $parameters);
 
-	    $responseData = json_decode($response->getContent(), true);
+        $responseData = json_decode($response->getContent(), true);
 
         if ($response->getStatusCode() !== 200) {
-        	throw new TelegramException($responseData['description']);
+            throw new TelegramException($responseData['description']);
         }
 
         $userData = Collection::make($responseData['result']['user']);
@@ -217,7 +217,7 @@ class TelegramDriver extends HttpDriver
                     }
                     // If has a title, overwrite the caption
                     if ($attachment->getTitle() !== null) {
-	                    $parameters['caption'] = $attachment->getTitle();
+                        $parameters['caption'] = $attachment->getTitle();
                     }
                 } elseif ($attachment instanceof Video) {
                     $this->endpoint = 'sendVideo';
