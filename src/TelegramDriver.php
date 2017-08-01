@@ -68,18 +68,18 @@ class TelegramDriver extends HttpDriver
         return $noAttachments && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query'))) && ! is_null($this->payload->get('update_id'));
     }
 
+    /**
+     * This hide the inline keyboard, if is an interactive message.
+     */
+    public function messagesHandled()
+    {
+        $callback = $this->payload->get('callback_query');
 
-	/**
-	 * This hide the inline keyboard, if is an interactive message.
-	 */
-	public function messagesHandled() {
-    	$callback = $this->payload->get('callback_query');
-
-	    if ($callback !== null) {
-		    $callback['message']['chat']['id'];
-		    $this->removeInlineKeyboard($callback['message']['chat']['id'],
-			    $callback['message']['message_id']);
-	    }
+        if ($callback !== null) {
+            $callback['message']['chat']['id'];
+            $this->removeInlineKeyboard($callback['message']['chat']['id'],
+                $callback['message']['message_id']);
+        }
     }
 
     /**
@@ -140,6 +140,7 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
             'action' => 'typing',
         ];
+
         return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
             $parameters);
     }

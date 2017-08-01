@@ -2,9 +2,6 @@
 
 namespace Tests;
 
-use BotMan\BotMan\Drivers\Tests\FakeDriver;
-use BotMan\BotMan\Messages\Incoming\IncomingMessage;
-use Illuminate\Support\Collection;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use PHPUnit_Framework_TestCase;
@@ -336,29 +333,29 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     /** @test */
     public function it_hides_keyboard()
     {
-	    $responseData = [
-		    'update_id' => '1234567890',
-		    'callback_query' => [
-			    'id' => '11717237123',
-			    'from' => [
-				    'id' => 'from_id',
-			    ],
-			    'message' => [
-				    'message_id' => '123',
-				    'from' => [
-					    'id' => 'from_id',
-				    ],
-				    'chat' => [
-					    'id' => '1234',
-				    ],
-				    'date' => '1480369277',
-				    'text' => 'Telegram Text',
-			    ],
-			    'data' => 'FooBar',
-		    ],
-	    ];
+        $responseData = [
+            'update_id' => '1234567890',
+            'callback_query' => [
+                'id' => '11717237123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'message' => [
+                    'message_id' => '123',
+                    'from' => [
+                        'id' => 'from_id',
+                    ],
+                    'chat' => [
+                        'id' => '1234',
+                    ],
+                    'date' => '1480369277',
+                    'text' => 'Telegram Text',
+                ],
+                'data' => 'FooBar',
+            ],
+        ];
 
-	    $html = m::mock(Curl::class);
+        $html = m::mock(Curl::class);
         $html->shouldReceive('post')
             ->once()
             ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/editMessageReplyMarkup', [], [
@@ -367,13 +364,12 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'inline_keyboard' => [],
             ]);
 
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
-	    $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
-	    $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
-	    $driver = new TelegramDriver($request, $this->telegramConfig, $html);
-
-	    $driver->messagesHandled();
+        $driver->messagesHandled();
     }
 
     /** @test */
