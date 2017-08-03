@@ -4,6 +4,7 @@ namespace BotMan\Drivers\Telegram;
 
 use BotMan\BotMan\Messages\Attachments\Video;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
+use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
 
 class TelegramVideoDriver extends TelegramDriver
 {
@@ -36,6 +37,7 @@ class TelegramVideoDriver extends TelegramDriver
     /**
      * Retrieve a image from an incoming message.
      * @return array A download for the image file.
+     * @throws TelegramAttachmentException
      */
     private function getVideos()
     {
@@ -44,14 +46,13 @@ class TelegramVideoDriver extends TelegramDriver
             'file_id' => $video['file_id'],
         ]);
 
-        $path = json_decode($response->getContent());
+        $responseData = json_decode($response->getContent());
 
-        // In case of file too large, this return only the attachment with the original payload, not the link.
-        // This need a proper logging and exception system in the future
-        $url = null;
-        if (isset($path->result)) {
-            $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$path->result->file_path;
+        if ($response->getStatusCode() !== 200) {
+            throw new TelegramAttachmentException($responseData->description);
         }
+
+        $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$responseData->result->file_path;
 
         return [new Video($url, $video)];
     }
