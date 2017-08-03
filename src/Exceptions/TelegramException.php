@@ -2,8 +2,8 @@
 
 namespace BotMan\Drivers\Telegram\Exceptions;
 
-use Exception;
+use BotMan\BotMan\Exceptions\Base\DriverException;
 
-class TelegramException extends Exception
+class TelegramException extends DriverException
 {
 }
