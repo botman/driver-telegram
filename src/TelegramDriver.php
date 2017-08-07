@@ -53,7 +53,7 @@ class TelegramDriver extends HttpDriver
         $responseData = json_decode($response->getContent(), true);
 
         if ($response->getStatusCode() !== 200) {
-            throw new TelegramException($responseData['description']);
+            throw new TelegramException('Error retrieving user info: '.$responseData['description']);
         }
 
         $userData = Collection::make($responseData['result']['user']);

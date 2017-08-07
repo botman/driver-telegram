@@ -49,7 +49,7 @@ class TelegramVideoDriver extends TelegramDriver
         $responseData = json_decode($response->getContent());
 
         if ($response->getStatusCode() !== 200) {
-            throw new TelegramAttachmentException($responseData->description);
+            throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
         }
 
         $url = 'https://api.telegram.org/file/bot'.$this->config->get('token').'/'.$responseData->result->file_path;
