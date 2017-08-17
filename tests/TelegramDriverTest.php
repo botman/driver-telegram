@@ -2,24 +2,24 @@
 
 namespace Tests;
 
+use Mockery as m;
+use BotMan\BotMan\Http\Curl;
+use BotMan\BotMan\Users\User;
+use PHPUnit_Framework_TestCase;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\ArrayCache;
-use BotMan\BotMan\Drivers\Events\GenericEvent;
-use BotMan\BotMan\Http\Curl;
-use BotMan\BotMan\Messages\Attachments\Audio;
-use BotMan\BotMan\Messages\Attachments\File;
-use BotMan\BotMan\Messages\Attachments\Image;
-use BotMan\BotMan\Messages\Attachments\Location;
-use BotMan\BotMan\Messages\Attachments\Video;
-use BotMan\BotMan\Messages\Outgoing\Actions\Button;
-use BotMan\BotMan\Messages\Outgoing\Question;
-use BotMan\BotMan\Users\User;
-use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 use BotMan\Drivers\Telegram\TelegramDriver;
-use Mockery as m;
-use PHPUnit_Framework_TestCase;
+use BotMan\BotMan\Messages\Attachments\File;
+use BotMan\BotMan\Messages\Attachments\Audio;
+use BotMan\BotMan\Messages\Attachments\Image;
+use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Outgoing\Question;
 use Symfony\Component\HttpFoundation\Request;
+use BotMan\BotMan\Drivers\Events\GenericEvent;
 use Symfony\Component\HttpFoundation\Response;
+use BotMan\BotMan\Messages\Attachments\Location;
+use BotMan\BotMan\Messages\Outgoing\Actions\Button;
+use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 
 class TelegramDriverTest extends PHPUnit_Framework_TestCase
 {
@@ -146,8 +146,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                     'id' => '456',
                     'first_name' => 'Marcel',
                     'last_name' => 'Pociot',
-                    'username' => 'mpociot'
-                ]
+                    'username' => 'mpociot',
+                ],
             ],
         ]);
         $event = $driver->hasMatchingEvent();
@@ -175,8 +175,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                     'id' => '456',
                     'first_name' => 'Marcel',
                     'last_name' => 'Pociot',
-                    'username' => 'mpociot'
-                ]
+                    'username' => 'mpociot',
+                ],
             ],
         ]);
         $event = $driver->hasMatchingEvent();
@@ -200,7 +200,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 ],
                 'date' => '1480369277',
                 'text' => 'Hi Julia',
-                'new_chat_title' => 'BotMan Chat'
+                'new_chat_title' => 'BotMan Chat',
             ],
         ]);
         $event = $driver->hasMatchingEvent();
@@ -228,8 +228,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                     'file_id' => 'asdf',
                     'file_size' => 1234,
                     'width' => 160,
-                    'height' => 160
-                ]
+                    'height' => 160,
+                ],
             ],
         ]);
         $event = $driver->hasMatchingEvent();

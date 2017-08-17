@@ -2,23 +2,23 @@
 
 namespace BotMan\Drivers\Telegram;
 
-use BotMan\BotMan\Drivers\Events\GenericEvent;
+use BotMan\BotMan\Users\User;
+use Illuminate\Support\Collection;
 use BotMan\BotMan\Drivers\HttpDriver;
-use BotMan\BotMan\Messages\Attachments\Audio;
-use BotMan\BotMan\Messages\Attachments\File;
-use BotMan\BotMan\Messages\Attachments\Image;
-use BotMan\BotMan\Messages\Attachments\Location;
-use BotMan\BotMan\Messages\Attachments\Video;
 use BotMan\BotMan\Messages\Incoming\Answer;
+use BotMan\BotMan\Messages\Attachments\File;
+use BotMan\BotMan\Messages\Attachments\Audio;
+use BotMan\BotMan\Messages\Attachments\Image;
+use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Outgoing\Question;
+use Symfony\Component\HttpFoundation\Request;
+use BotMan\BotMan\Drivers\Events\GenericEvent;
+use Symfony\Component\HttpFoundation\Response;
+use BotMan\BotMan\Messages\Attachments\Location;
+use Symfony\Component\HttpFoundation\ParameterBag;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\BotMan\Messages\Outgoing\OutgoingMessage;
-use BotMan\BotMan\Messages\Outgoing\Question;
-use BotMan\BotMan\Users\User;
 use BotMan\Drivers\Telegram\Exceptions\TelegramException;
-use Illuminate\Support\Collection;
-use Symfony\Component\HttpFoundation\ParameterBag;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 
 class TelegramDriver extends HttpDriver
 {
