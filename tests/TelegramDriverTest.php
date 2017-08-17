@@ -2,23 +2,24 @@
 
 namespace Tests;
 
-use Mockery as m;
-use BotMan\BotMan\Http\Curl;
-use BotMan\BotMan\Users\User;
-use PHPUnit_Framework_TestCase;
 use BotMan\BotMan\BotManFactory;
 use BotMan\BotMan\Cache\ArrayCache;
-use BotMan\Drivers\Telegram\TelegramDriver;
-use BotMan\BotMan\Messages\Attachments\File;
+use BotMan\BotMan\Drivers\Events\GenericEvent;
+use BotMan\BotMan\Http\Curl;
 use BotMan\BotMan\Messages\Attachments\Audio;
+use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Image;
+use BotMan\BotMan\Messages\Attachments\Location;
 use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Outgoing\Actions\Button;
 use BotMan\BotMan\Messages\Outgoing\Question;
+use BotMan\BotMan\Users\User;
+use BotMan\Drivers\Telegram\Exceptions\TelegramException;
+use BotMan\Drivers\Telegram\TelegramDriver;
+use Mockery as m;
+use PHPUnit_Framework_TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use BotMan\BotMan\Messages\Attachments\Location;
-use BotMan\BotMan\Messages\Outgoing\Actions\Button;
-use BotMan\Drivers\Telegram\Exceptions\TelegramException;
 
 class TelegramDriverTest extends PHPUnit_Framework_TestCase
 {
@@ -124,6 +125,117 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             ],
         ]);
         $this->assertSame('Hi Julia', $driver->getMessages()[0]->getText());
+    }
+
+    /** @test */
+    public function it_calls_new_chat_member_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'new_chat_member' => [
+                    'id' => '456',
+                    'first_name' => 'Marcel',
+                    'last_name' => 'Pociot',
+                    'username' => 'mpociot'
+                ]
+            ],
+        ]);
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('new_chat_member', $event->getName());
+        $this->assertSame('Marcel', $event->getPayload()['first_name']);
+    }
+
+    /** @test */
+    public function it_calls_left_chat_member_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'left_chat_member' => [
+                    'id' => '456',
+                    'first_name' => 'Marcel',
+                    'last_name' => 'Pociot',
+                    'username' => 'mpociot'
+                ]
+            ],
+        ]);
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('left_chat_member', $event->getName());
+        $this->assertSame('Marcel', $event->getPayload()['first_name']);
+    }
+
+    /** @test */
+    public function it_calls_new_chat_title_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'new_chat_title' => 'BotMan Chat'
+            ],
+        ]);
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('new_chat_title', $event->getName());
+        $this->assertSame('BotMan Chat', $event->getPayload());
+    }
+
+    /** @test */
+    public function it_calls_new_chat_photo_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'new_chat_photo' => [
+                    'file_id' => 'asdf',
+                    'file_size' => 1234,
+                    'width' => 160,
+                    'height' => 160
+                ]
+            ],
+        ]);
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('new_chat_photo', $event->getName());
+        $this->assertSame('asdf', $event->getPayload()['file_id']);
     }
 
     /** @test */

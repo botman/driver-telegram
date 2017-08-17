@@ -2,22 +2,23 @@
 
 namespace BotMan\Drivers\Telegram;
 
-use BotMan\BotMan\Users\User;
-use Illuminate\Support\Collection;
+use BotMan\BotMan\Drivers\Events\GenericEvent;
 use BotMan\BotMan\Drivers\HttpDriver;
-use BotMan\BotMan\Messages\Incoming\Answer;
-use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Audio;
+use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Image;
-use BotMan\BotMan\Messages\Attachments\Video;
-use BotMan\BotMan\Messages\Outgoing\Question;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
 use BotMan\BotMan\Messages\Attachments\Location;
-use Symfony\Component\HttpFoundation\ParameterBag;
+use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Incoming\Answer;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\BotMan\Messages\Outgoing\OutgoingMessage;
+use BotMan\BotMan\Messages\Outgoing\Question;
+use BotMan\BotMan\Users\User;
 use BotMan\Drivers\Telegram\Exceptions\TelegramException;
+use Illuminate\Support\Collection;
+use Symfony\Component\HttpFoundation\ParameterBag;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 
 class TelegramDriver extends HttpDriver
 {
@@ -74,6 +75,35 @@ class TelegramDriver extends HttpDriver
         })->isEmpty();
 
         return $noAttachments && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query'))) && ! is_null($this->payload->get('update_id'));
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasMatchingEvent()
+    {
+        $event = false;
+        if ($this->event->has('new_chat_member')) {
+            $event = new GenericEvent($this->event->get('new_chat_member'));
+            $event->setName('new_chat_member');
+        }
+
+        if ($this->event->has('left_chat_member')) {
+            $event = new GenericEvent($this->event->get('left_chat_member'));
+            $event->setName('left_chat_member');
+        }
+
+        if ($this->event->has('new_chat_title')) {
+            $event = new GenericEvent($this->event->get('new_chat_title'));
+            $event->setName('new_chat_title');
+        }
+
+        if ($this->event->has('new_chat_photo')) {
+            $event = new GenericEvent($this->event->get('new_chat_photo'));
+            $event->setName('new_chat_photo');
+        }
+
+        return $event;
     }
 
     /**
