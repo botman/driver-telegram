@@ -1009,14 +1009,13 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $user = $driver->getUser($driver->getMessages()[0]);
 
-        $this->assertEquals(
-            new User(12345,
-                'Mario',
-                'Rossi',
-                'MRossi',
-                json_decode('{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"}', true)
-            ),
-            $user
-        );
+        $this->assertSame(12345, $user->getId());
+        $this->assertSame('Mario', $user->getFirstName());
+        $this->assertSame('Rossi', $user->getLastName());
+        $this->assertSame('MRossi', $user->getUsername());
+        $this->assertSame(json_decode('{"user":{"id":12345,"first_name":"Mario","last_name":"Rossi","username":"MRossi","language_code":"it-IT"},"status":"member"}', true), $user->getInfo());
+
+        $this->assertSame('member', $user->getStatus());
+        $this->assertSame('it-IT', $user->getLanguageCode());
     }
 }

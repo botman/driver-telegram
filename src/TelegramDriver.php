@@ -2,10 +2,10 @@
 
 namespace BotMan\Drivers\Telegram;
 
-use BotMan\BotMan\Users\User;
 use Illuminate\Support\Collection;
 use BotMan\BotMan\Drivers\HttpDriver;
 use BotMan\BotMan\Messages\Incoming\Answer;
+use BotMan\Drivers\Telegram\Extensions\User;
 use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Audio;
 use BotMan\BotMan\Messages\Attachments\Image;
@@ -60,7 +60,7 @@ class TelegramDriver extends HttpDriver
         $userData = Collection::make($responseData['result']['user']);
 
         return new User($userData->get('id'), $userData->get('first_name'), $userData->get('last_name'),
-            $userData->get('username'), $userData->toArray());
+            $userData->get('username'), $responseData['result']);
     }
 
     /**
