@@ -11,9 +11,9 @@ class User extends BotManUser implements UserInterface
      * The member's status in the chat.
      * Can be “creator”, “administrator”, “member”, “restricted”, “left” or “kicked”.
      *
-     * @return string
+     * @return string|null
      */
-    public function getStatus() : ?string
+    public function getStatus()
     {
         $info = $this->getInfo();
 
@@ -23,9 +23,9 @@ class User extends BotManUser implements UserInterface
     /**
      * IETF language tag of the user's language.
      *
-     * @return string
+     * @return string|null
      */
-    public function getLanguageCode() : ?string
+    public function getLanguageCode()
     {
         $info = $this->getInfo();
 
