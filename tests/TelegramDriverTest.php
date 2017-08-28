@@ -387,28 +387,6 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function it_can_originate_messages()
-    {
-        $botman = BotManFactory::create([], new ArrayCache());
-
-        $html = m::mock(Curl::class);
-        $html->shouldReceive('post')
-            ->once()
-            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
-                'chat_id' => '12345',
-                'text' => 'Test',
-            ]);
-
-        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
-        $request->shouldReceive('getContent')->andReturn('');
-
-        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
-        $botman->say('Test', '12345', $driver);
-
-        $this->assertInstanceOf(TelegramDriver::class, $botman->getDriver());
-    }
-
-    /** @test */
     public function it_returns_answer_from_interactive_messages()
     {
         $responseData = [
