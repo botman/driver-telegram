@@ -6,8 +6,6 @@ use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use BotMan\BotMan\Users\User;
 use PHPUnit_Framework_TestCase;
-use BotMan\BotMan\BotManFactory;
-use BotMan\BotMan\Cache\ArrayCache;
 use BotMan\Drivers\Telegram\TelegramDriver;
 use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Audio;
