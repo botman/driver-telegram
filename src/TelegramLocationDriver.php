@@ -27,7 +27,6 @@ class TelegramLocationDriver extends TelegramDriver
         return false;
     }
 
-
     /**
      * Retrieve the chat message.
      *

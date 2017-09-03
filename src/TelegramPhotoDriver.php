@@ -29,7 +29,6 @@ class TelegramPhotoDriver extends TelegramDriver
         return false;
     }
 
-
     /**
      * Retrieve the chat message.
      *

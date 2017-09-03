@@ -28,7 +28,6 @@ class TelegramFileDriver extends TelegramDriver
         return false;
     }
 
-
     /**
      * Retrieve the chat message.
      *
