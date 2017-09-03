@@ -22,6 +22,15 @@ class TelegramPhotoDriver extends TelegramDriver
     }
 
     /**
+     * @return bool
+     */
+    public function hasMatchingEvent()
+    {
+        return false;
+    }
+
+
+    /**
      * Retrieve the chat message.
      *
      * @return array
