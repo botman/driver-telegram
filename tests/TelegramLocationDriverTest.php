@@ -105,4 +105,31 @@ class TelegramLocationDriverTest extends PHPUnit_Framework_TestCase
             'longitude' => -122.123854248,
         ], $location->getPayload());
     }
+
+    /** @test */
+    public function it_havent_to_match_any_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'new_chat_member' => [
+                    'id' => '456',
+                    'first_name' => 'Marcel',
+                    'last_name' => 'Pociot',
+                    'username' => 'mpociot',
+                ],
+            ],
+        ]);
+        $this->assertFalse($driver->matchesRequest());
+        $this->assertFalse($driver->hasMatchingEvent());
+    }
 }
