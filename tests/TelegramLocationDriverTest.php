@@ -91,6 +91,15 @@ class TelegramLocationDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_returns_the_message_object_by_reference()
+    {
+        $driver = $this->getDriver($this->getWorkingRequestData());
+        $messages = $driver->getMessages();
+        $hash = spl_object_hash($messages[0]);
+        $this->assertSame($hash, spl_object_hash($driver->getMessages()[0]));
+    }
+
+    /** @test */
     public function it_returns_the_location()
     {
         $driver = $this->getDriver($this->getWorkingRequestData());

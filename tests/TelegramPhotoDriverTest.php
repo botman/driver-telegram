@@ -109,6 +109,39 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_returns_the_message_object_by_reference()
+    {
+        $response = new Response('{"result": {"file_path": "foo"}}');
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('get')
+            ->with('https://api.telegram.org/bot/getFile', [
+                'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+            ])
+            ->andReturn($response);
+
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'photo' => [
+                    [
+                        'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+                    ],
+                ],
+            ],
+        ], $htmlInterface);
+        $messages = $driver->getMessages();
+        $hash = spl_object_hash($messages[0]);
+        $this->assertSame($hash, spl_object_hash($driver->getMessages()[0]));
+    }
+
+    /** @test */
     public function it_returns_the_image()
     {
         $response = new Response('{"result": {"file_path": "foo"}}');

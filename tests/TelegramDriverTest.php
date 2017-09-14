@@ -106,6 +106,28 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_returns_the_message_object_by_reference()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ]);
+        $messages = $driver->getMessages();
+        $hash = spl_object_hash($messages[0]);
+        $this->assertSame($hash, spl_object_hash($driver->getMessages()[0]));
+    }
+
+    /** @test */
     public function it_returns_the_message_text()
     {
         $driver = $this->getDriver([

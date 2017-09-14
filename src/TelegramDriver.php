@@ -26,6 +26,8 @@ class TelegramDriver extends HttpDriver
 
     protected $endpoint = 'sendMessage';
 
+    protected $messages = [];
+
     /**
      * @param Request $request
      */
@@ -145,19 +147,35 @@ class TelegramDriver extends HttpDriver
      */
     public function getMessages()
     {
+        if (empty($this->messages)) {
+            $this->loadMessages();
+        }
+
+        return $this->messages;
+    }
+
+    /**
+     * Load Telegram messages.
+     *
+     * @return array
+     */
+    public function loadMessages()
+    {
         if ($this->payload->get('callback_query') !== null) {
             $callback = Collection::make($this->payload->get('callback_query'));
 
-            return [
+            $messages = [
                 new IncomingMessage($callback->get('data'), $callback->get('from')['id'],
                     $callback->get('message')['chat']['id'], $callback->get('message')),
             ];
         } else {
-            return [
+            $messages = [
                 new IncomingMessage($this->event->get('text'), $this->event->get('from')['id'], $this->event->get('chat')['id'],
                     $this->event),
             ];
         }
+
+        $this->messages = $messages;
     }
 
     /**

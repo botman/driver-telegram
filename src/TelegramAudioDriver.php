@@ -35,11 +35,23 @@ class TelegramAudioDriver extends TelegramDriver
      */
     public function getMessages()
     {
+        if (empty($this->messages)) {
+            $this->loadMessages();
+        }
+
+        return $this->messages;
+    }
+
+    /**
+     * Load Telegram messages.
+     */
+    public function loadMessages()
+    {
         $message = new IncomingMessage(Audio::PATTERN, $this->event->get('from')['id'], $this->event->get('chat')['id'],
             $this->event);
         $message->setAudio($this->getAudio());
 
-        return [$message];
+        $this->messages = [$message];
     }
 
     /**
