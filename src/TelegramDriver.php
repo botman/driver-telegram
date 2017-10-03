@@ -339,11 +339,11 @@ class TelegramDriver extends HttpDriver
 
     protected function buildEntry($endpoint)
     {
-        return $this->baseUrl . $this->config->get('token') .'/'. $endpoint;
+        return $this->baseUrl.$this->config->get('token').'/'.$endpoint;
     }
 
     protected function buildFileEntry($endpoint)
     {
-        return $this->baseFileUrl . $this->config->get('token') .'/'. $endpoint;
+        return $this->baseFileUrl.$this->config->get('token').'/'.$endpoint;
     }
 }
