@@ -9,5 +9,8 @@
         "BotMan\\Drivers\\Telegram\\TelegramLocationDriver",
         "BotMan\\Drivers\\Telegram\\TelegramPhotoDriver",
         "BotMan\\Drivers\\Telegram\\TelegramVideoDriver"
+    ],
+    "botman/commands": [
+        "BotMan\\Drivers\\Telegram\\Console\\Commands\\TelegramPingCommand"
     ]
 }
