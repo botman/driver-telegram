@@ -11,6 +11,6 @@
         "BotMan\\Drivers\\Telegram\\TelegramVideoDriver"
     ],
     "botman/commands": [
-        "BotMan\\Drivers\\Telegram\\Console\\Commands\\TelegramPingCommand"
+        "BotMan\\Drivers\\Telegram\\Console\\Commands\\TelegramRegisterCommand"
     ]
 }
