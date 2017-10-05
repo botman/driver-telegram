@@ -33,7 +33,7 @@ class TelegramRegisterCommand extends Command
                 .$this->ask('What is the target url for the telegram bot?');
 
         $this->info('Using '.$url);
-        
+
         $this->info('Pinging Telegram...');
 
         $output = json_decode(file_get_contents($url));
@@ -41,7 +41,7 @@ class TelegramRegisterCommand extends Command
         if ($output->ok == true && $output->result == true) {
             $this->info('Your bot is now set up with Telegram\'s webhook!');
         }
-        
+
         if ($this->option('output')) {
             dump($output);
         }
