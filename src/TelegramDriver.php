@@ -85,9 +85,9 @@ class TelegramDriver extends HttpDriver
     public function hasMatchingEvent()
     {
         $event = false;
-        if ($this->event->has('new_chat_member')) {
-            $event = new GenericEvent($this->event->get('new_chat_member'));
-            $event->setName('new_chat_member');
+        if ($this->event->has('new_chat_members')) {
+            $event = new GenericEvent($this->event->get('new_chat_members'));
+            $event->setName('new_chat_members');
         }
 
         if ($this->event->has('left_chat_member')) {

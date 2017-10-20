@@ -162,18 +162,20 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 ],
                 'date' => '1480369277',
                 'text' => 'Hi Julia',
-                'new_chat_member' => [
-                    'id' => '456',
-                    'first_name' => 'Marcel',
-                    'last_name' => 'Pociot',
-                    'username' => 'mpociot',
+                'new_chat_members' => [
+                    [
+                        'id' => '456',
+                        'first_name' => 'Marcel',
+                        'last_name' => 'Pociot',
+                        'username' => 'mpociot',
+                    ],
                 ],
             ],
         ]);
         $event = $driver->hasMatchingEvent();
         $this->assertInstanceOf(GenericEvent::class, $event);
-        $this->assertSame('new_chat_member', $event->getName());
-        $this->assertSame('Marcel', $event->getPayload()['first_name']);
+        $this->assertSame('new_chat_members', $event->getName());
+        $this->assertSame('Marcel', $event->getPayload()[0]['first_name']);
     }
 
     /** @test */
