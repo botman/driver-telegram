@@ -169,7 +169,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                         'last_name' => 'Pociot',
                         'username' => 'mpociot',
                     ],
-                ]
+                ],
             ],
         ]);
         $event = $driver->hasMatchingEvent();
