@@ -17,7 +17,7 @@ class TelegramVideoDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->event->get('from')) && ! is_null($this->event->get('video'));
+        return ! is_null($this->event->get('from')) && (! is_null($this->event->get('video')) || ! is_null($this->event->get('video_note')));
     }
 
     /**
@@ -61,7 +61,7 @@ class TelegramVideoDriver extends TelegramDriver
      */
     private function getVideos()
     {
-        $video = $this->event->get('video');
+        $video = $this->event->get('video') ?: $this->event->get('video_note');
         $response = $this->http->get('https://api.telegram.org/bot'.$this->config->get('token').'/getFile', [
             'file_id' => $video['file_id'],
         ]);
