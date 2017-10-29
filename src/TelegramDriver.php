@@ -30,7 +30,6 @@ class TelegramDriver extends HttpDriver
 
     protected $messages = [];
 
-
     /**
      * @param Request $request
      */
