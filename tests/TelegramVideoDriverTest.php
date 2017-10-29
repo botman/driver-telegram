@@ -84,6 +84,24 @@ class TelegramVideoDriverTest extends PHPUnit_Framework_TestCase
             ],
         ]);
         $this->assertTrue($driver->matchesRequest());
+
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'video_note' => [
+                    'mime_type' => 'video/quicktime',
+                    'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+                ],
+            ],
+        ]);
+        $this->assertTrue($driver->matchesRequest());
     }
 
     private function getRequest($responseData)
@@ -172,6 +190,40 @@ class TelegramVideoDriverTest extends PHPUnit_Framework_TestCase
                     'id' => 'chat_id',
                 ],
                 'video' => [
+                    'mime_type' => 'video/quicktime',
+                    'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+                ],
+            ],
+        ], $htmlInterface);
+        $message = $driver->getMessages()[0];
+        $this->assertSame(Video::PATTERN, $message->getText());
+        $this->assertSame('https://api.telegram.org/file/bot/foo', $message->getVideos()[0]->getUrl());
+        $this->assertSame([
+            'mime_type' => 'video/quicktime',
+            'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+        ], $message->getVideos()[0]->getPayload());
+    }
+
+    /** @test */
+    public function it_returns_the_video_from_note()
+    {
+        $response = new Response('{"result": {"file_path": "foo"}}');
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('get')->with('https://api.telegram.org/bot/getFile', [
+            'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
+        ])->andReturn($response);
+
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'video_note' => [
                     'mime_type' => 'video/quicktime',
                     'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
                 ],
