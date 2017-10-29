@@ -62,7 +62,7 @@ class TelegramVideoDriver extends TelegramDriver
     private function getVideos()
     {
         $video = $this->event->get('video');
-        $response = $this->http->get($this->buildEntry('getFile'), [
+        $response = $this->http->get($this->buildApiUrl('getFile'), [
             'file_id' => $video['file_id'],
         ]);
 
@@ -72,7 +72,7 @@ class TelegramVideoDriver extends TelegramDriver
             throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
         }
 
-        $url = $this->buildFileEntry($responseData->result->file_path);
+        $url = $this->buildFileApiUrl($responseData->result->file_path);
 
         return [new Video($url, $video)];
     }

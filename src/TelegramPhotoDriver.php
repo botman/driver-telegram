@@ -64,7 +64,7 @@ class TelegramPhotoDriver extends TelegramDriver
     {
         $photos = $this->event->get('photo');
         $largetstPhoto = array_pop($photos);
-        $response = $this->http->get($this->buildEntry('getFile'), [
+        $response = $this->http->get($this->buildApiUrl('getFile'), [
             'file_id' => $largetstPhoto['file_id'],
         ]);
 
@@ -74,7 +74,7 @@ class TelegramPhotoDriver extends TelegramDriver
             throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
         }
 
-        $url = $this->buildFileEntry($responseData->result->file_path);
+        $url = $this->buildFileApiUrl($responseData->result->file_path);
 
         return [new Image($url, $largetstPhoto)];
     }

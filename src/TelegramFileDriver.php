@@ -63,7 +63,7 @@ class TelegramFileDriver extends TelegramDriver
     {
         $file = $this->event->get('document');
 
-        $response = $this->http->get($this->buildEntry('getFile'), [
+        $response = $this->http->get($this->buildApiUrl('getFile'), [
             'file_id' => $file['file_id'],
         ]);
 
@@ -73,7 +73,7 @@ class TelegramFileDriver extends TelegramDriver
             throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
         }
 
-        $url = $this->buildFileEntry($responseData->result->file_path);
+        $url = $this->buildFileApiUrl($responseData->result->file_path);
 
         return [new File($url, $file)];
     }

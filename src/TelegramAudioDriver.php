@@ -65,7 +65,7 @@ class TelegramAudioDriver extends TelegramDriver
         if ($this->event->has('voice')) {
             $audio = $this->event->get('voice');
         }
-        $response = $this->http->get($this->buildEntry('getFile'), [
+        $response = $this->http->get($this->buildApiUrl('getFile'), [
             'file_id' => $audio['file_id'],
         ]);
 
@@ -75,7 +75,7 @@ class TelegramAudioDriver extends TelegramDriver
             throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
         }
 
-        $url = $this->buildFileEntry($responseData->result->file_path);
+        $url = $this->buildFileApiUrl($responseData->result->file_path);
 
         return [new Audio($url, $audio)];
     }
