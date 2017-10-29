@@ -28,6 +28,10 @@ class TelegramDriver extends HttpDriver
 
     protected $messages = [];
 
+    protected $baseUrl = 'https://api.telegram.org/bot';
+
+    protected $baseFileUrl = 'https://api.telegram.org/file/bot';
+
     /**
      * @param Request $request
      */
@@ -50,8 +54,7 @@ class TelegramDriver extends HttpDriver
             'user_id' => $matchingMessage->getSender(),
         ];
 
-        $response = $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/getChatMember',
-            [], $parameters);
+        $response = $this->http->post($this->buildEntry('getChatMember'), [], $parameters);
 
         $responseData = json_decode($response->getContent(), true);
 
@@ -197,8 +200,7 @@ class TelegramDriver extends HttpDriver
             'action' => 'typing',
         ];
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/sendChatAction', [],
-            $parameters);
+        return $this->http->post($this->buildEntry('sendChatAction'), [], $parameters);
     }
 
     /**
@@ -237,8 +239,7 @@ class TelegramDriver extends HttpDriver
             'inline_keyboard' => [],
         ];
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/editMessageReplyMarkup',
-            [], $parameters);
+        return $this->http->post($this->buildEntry('editMessageReplyMarkup'), [], $parameters);
     }
 
     /**
@@ -308,8 +309,7 @@ class TelegramDriver extends HttpDriver
      */
     public function sendPayload($payload)
     {
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$this->endpoint,
-            [], $payload);
+        return $this->http->post($this->buildEntry($this->endpoint), [], $payload);
     }
 
     /**
@@ -334,7 +334,16 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
         ], $parameters);
 
-        return $this->http->post('https://api.telegram.org/bot'.$this->config->get('token').'/'.$endpoint, [],
-            $parameters);
+        return $this->http->post($this->buildEntry($endpoint), [], $parameters);
+    }
+
+    protected function buildEntry($endpoint)
+    {
+        return $this->baseUrl.$this->config->get('token').'/'.$endpoint;
+    }
+
+    protected function buildFileEntry($endpoint)
+    {
+        return $this->baseFileUrl.$this->config->get('token').'/'.$endpoint;
     }
 }
