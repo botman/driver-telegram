@@ -32,7 +32,7 @@ class TelegramServiceProvider extends ServiceProvider
             $this->mergeConfigFrom(__DIR__.'/../../stubs/telegram.php', 'botman.telegram');
 
             $this->commands([
-                TelegramRegisterCommand::class
+                TelegramRegisterCommand::class,
             ]);
         }
     }
