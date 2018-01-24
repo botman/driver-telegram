@@ -5,8 +5,7 @@ namespace BotMan\Drivers\Telegram\Extensions;
 use Illuminate\Support\Collection;
 
 /**
- * Class KeyboardButton
- * @package BotMan\Drivers\Telegram\Extensions
+ * Class KeyboardButton.
  */
 class KeyboardButton implements \JsonSerializable
 {

@@ -1,6 +1,7 @@
 <?php
 
 namespace BotMan\Drivers\Telegram\Extensions;
+
 use Illuminate\Support\Collection;
 
 /**
@@ -91,8 +92,8 @@ class Keyboard
             'reply_markup' => json_encode(Collection::make([
                 $this->type => $this->rows,
                 'one_time_keyboard' => $this->oneTimeKeyboard,
-                'resize_keyboard' => $this->resizeKeyboard
-            ])->filter())
+                'resize_keyboard' => $this->resizeKeyboard,
+            ])->filter()),
         ];
     }
 }
