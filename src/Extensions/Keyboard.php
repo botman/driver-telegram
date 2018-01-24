@@ -2,10 +2,8 @@
 
 namespace BotMan\Drivers\Telegram\Extensions;
 
-
 /**
- * Class Keyboard
- * @package BotMan\Drivers\Telegram\Extensions
+ * Class Keyboard.
  */
 class Keyboard
 {
@@ -64,9 +62,8 @@ class Keyboard
     {
         return [
             'reply_markup' => json_encode([
-                $this->type => $this->rows
-            ])
+                $this->type => $this->rows,
+            ]),
         ];
     }
-
 }
