@@ -1,6 +1,7 @@
 <?php
 
 namespace BotMan\Drivers\Telegram\Extensions;
+use Illuminate\Support\Collection;
 
 
 /**
@@ -12,17 +13,21 @@ class Keyboard
     const TYPE_KEYBOARD = 'keyboard';
     const TYPE_INLINE = 'inline_keyboard';
 
+    protected $oneTimeKeyboard = false;
+    protected $resizeKeyboard = false;
+
     /**
      * @var array
      */
     protected $rows = [];
 
     /**
+     * @param string $type
      * @return Keyboard
      */
-    public static function create()
+    public static function create($type = self::TYPE_INLINE)
     {
-        return new self;
+        return new self($type);
     }
 
     /**
@@ -46,6 +51,28 @@ class Keyboard
     }
 
     /**
+     * @param bool $active
+     * @return $this
+     */
+    public function oneTimeKeyboard($active = true)
+    {
+        $this->oneTimeKeyboard = $active;
+
+        return $this;
+    }
+
+    /**
+     * @param bool $active
+     * @return $this
+     */
+    public function resizeKeyboard($active = true)
+    {
+        $this->resizeKeyboard = $active;
+
+        return $this;
+    }
+
+    /**
      * Add a new row to the Keyboard.
      * @param KeyboardButton[] $buttons
      * @return Keyboard
@@ -63,9 +90,11 @@ class Keyboard
     public function toArray()
     {
         return [
-            'reply_markup' => json_encode([
-                $this->type => $this->rows
-            ])
+            'reply_markup' => json_encode(Collection::make([
+                $this->type => $this->rows,
+                'one_time_keyboard' => $this->oneTimeKeyboard,
+                'resize_keyboard' => $this->resizeKeyboard
+            ])->filter())
         ];
     }
 
