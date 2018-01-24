@@ -2,13 +2,12 @@
 
 namespace Tests;
 
-use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
 use PHPUnit_Framework_TestCase;
 use BotMan\Drivers\Telegram\Extensions\Keyboard;
+use BotMan\Drivers\Telegram\Extensions\KeyboardButton;
 
 class TelegramKeyboardTest extends PHPUnit_Framework_TestCase
 {
-
     /** @test */
     public function it_can_be_created()
     {
@@ -52,5 +51,4 @@ class TelegramKeyboardTest extends PHPUnit_Framework_TestCase
 
         $this->assertCount(2, $replyMarkup[Keyboard::TYPE_INLINE][0]);
     }
-
 }
