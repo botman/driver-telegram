@@ -3,10 +3,8 @@
 namespace BotMan\Drivers\Telegram\Extensions;
 use Illuminate\Support\Collection;
 
-
 /**
- * Class Keyboard
- * @package BotMan\Drivers\Telegram\Extensions
+ * Class Keyboard.
  */
 class Keyboard
 {
@@ -97,5 +95,4 @@ class Keyboard
             ])->filter())
         ];
     }
-
 }
