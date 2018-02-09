@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use Illuminate\Support\Collection;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use BotMan\BotMan\Users\User;
@@ -205,6 +206,161 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf(GenericEvent::class, $event);
         $this->assertSame('left_chat_member', $event->getName());
         $this->assertSame('Marcel', $event->getPayload()['first_name']);
+    }
+
+    /** @test */
+    public function it_calls_telegram_login_event()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'id' => '12345',
+            'first_name' => 'Marcel',
+            'last_name' => 'Pociot',
+            'username' => 'marcelpociot',
+            'photo_url' => 'https://some/picture.jpg',
+            'auth_date' => time()
+        ];
+
+        // Calculate hash
+        $check = Collection::make($queryParameters)
+            ->except('hash')
+            ->map(function($value, $key) {
+                return $key . '=' . $value;
+            })
+            ->values()
+            ->sort();
+        $check_string = implode("\n", $check->toArray());
+
+        $secret = hash('sha256', $token, true);
+        $hash = hash_hmac('sha256', $check_string, $secret);
+
+        $queryParameters['hash'] = $hash;
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token
+            ]
+        ], m::mock(Curl::class));
+
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame(TelegramDriver::LOGIN_EVENT, $event->getName());
+        $this->assertSame('12345', $event->getPayload()['id']);
+        $this->assertSame('Marcel', $event->getPayload()['first_name']);
+        $this->assertSame('Pociot', $event->getPayload()['last_name']);
+        $this->assertSame('marcelpociot', $event->getPayload()['username']);
+        $this->assertSame('https://some/picture.jpg', $event->getPayload()['photo_url']);
+    }
+
+    /** @test */
+    public function it_does_not_call_telegram_login_event_with_outdated_auth_date()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'id' => '12345',
+            'first_name' => 'Marcel',
+            'last_name' => 'Pociot',
+            'username' => 'marcelpociot',
+            'photo_url' => 'https://some/picture.jpg',
+            'auth_date' => time() - 90000
+        ];
+
+        // Calculate hash
+        $check = Collection::make($queryParameters)
+            ->except('hash')
+            ->map(function($value, $key) {
+                return $key . '=' . $value;
+            })
+            ->values()
+            ->sort();
+        $check_string = implode("\n", $check->toArray());
+
+        $secret = hash('sha256', $token, true);
+        $hash = hash_hmac('sha256', $check_string, $secret);
+
+        $queryParameters['hash'] = $hash;
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token
+            ]
+        ], m::mock(Curl::class));
+
+        $this->assertFalse($driver->hasMatchingEvent());
+    }
+
+    /** @test */
+    public function it_does_not_call_telegram_login_event_with_invalid_hash()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'id' => '12345',
+            'first_name' => 'Marcel',
+            'last_name' => 'Pociot',
+            'username' => 'marcelpociot',
+            'photo_url' => 'https://some/picture.jpg',
+            'auth_date' => time(),
+            'hash' => 'kajhsdkjhaskjdh'
+        ];
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token
+            ]
+        ], m::mock(Curl::class));
+
+        $this->assertFalse($driver->hasMatchingEvent());
+    }
+
+    /** @test */
+    public function telegram_login_event_has_the_correct_chat_id()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'id' => '12345',
+            'first_name' => 'Marcel',
+            'last_name' => 'Pociot',
+            'username' => 'marcelpociot',
+            'photo_url' => 'https://some/picture.jpg',
+            'auth_date' => time()
+        ];
+
+        // Calculate hash
+        $check = Collection::make($queryParameters)
+            ->except('hash')
+            ->map(function($value, $key) {
+                return $key . '=' . $value;
+            })
+            ->values()
+            ->sort();
+        $check_string = implode("\n", $check->toArray());
+
+        $secret = hash('sha256', $token, true);
+        $hash = hash_hmac('sha256', $check_string, $secret);
+
+        $queryParameters['hash'] = $hash;
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token
+            ]
+        ], m::mock(Curl::class));
+
+        $message = $driver->getMessages();
+
+        $this->assertSame('12345', $message[0]->getSender());
     }
 
     /** @test */

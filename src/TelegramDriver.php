@@ -25,10 +25,14 @@ class TelegramDriver extends HttpDriver
     const DRIVER_NAME = 'Telegram';
     const API_URL = 'https://api.telegram.org/bot';
     const FILE_API_URL = 'https://api.telegram.org/file/bot';
+    const LOGIN_EVENT = 'telegram_login';
 
     protected $endpoint = 'sendMessage';
 
     protected $messages = [];
+
+    /** @var Collection */
+    protected $queryParameters;
 
     /**
      * @param Request $request
@@ -38,6 +42,7 @@ class TelegramDriver extends HttpDriver
         $this->payload = new ParameterBag((array) json_decode($request->getContent(), true));
         $this->event = Collection::make($this->payload->get('message'));
         $this->config = Collection::make($this->config->get('telegram'));
+        $this->queryParameters = Collection::make($request->query);
     }
 
     /**
@@ -86,6 +91,12 @@ class TelegramDriver extends HttpDriver
     public function hasMatchingEvent()
     {
         $event = false;
+
+        if ($this->isValidLoginRequest()) {
+            $event = new GenericEvent($this->queryParameters->except('hash'));
+            $event->setName(self::LOGIN_EVENT);
+        }
+
         if ($this->event->has('new_chat_members')) {
             $event = new GenericEvent($this->event->get('new_chat_members'));
             $event->setName('new_chat_members');
@@ -107,6 +118,39 @@ class TelegramDriver extends HttpDriver
         }
 
         return $event;
+    }
+
+    /**
+     * Check if the query parameters contain information about a
+     * valid Telegram login request.
+     *
+     * @return bool
+     */
+    protected function isValidLoginRequest()
+    {
+        $check_hash = $this->queryParameters->get('hash');
+
+        // Get sorted array of values
+        $check = $this->queryParameters
+            ->except('hash')
+            ->map(function($value, $key) {
+                return $key . '=' . $value;
+            })
+            ->values()
+            ->sort();
+        $check_string = implode("\n", $check->toArray());
+
+        $secret = hash('sha256', $this->config->get('token'), true);
+        $hash = hash_hmac('sha256', $check_string, $secret);
+
+        if (strcmp($hash, $check_hash) !== 0) {
+            return false;
+        }
+        if ((time() - $this->queryParameters->get('auth_date')) > 86400) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -157,8 +201,6 @@ class TelegramDriver extends HttpDriver
 
     /**
      * Load Telegram messages.
-     *
-     * @return array
      */
     public function loadMessages()
     {
@@ -168,6 +210,10 @@ class TelegramDriver extends HttpDriver
             $messages = [
                 new IncomingMessage($callback->get('data'), $callback->get('from')['id'],
                     $callback->get('message')['chat']['id'], $callback->get('message')),
+            ];
+        } elseif ($this->isValidLoginRequest()) {
+            $messages = [
+                new IncomingMessage('', $this->queryParameters->get('id'), $this->queryParameters->get('id'), $this->queryParameters),
             ];
         } else {
             $messages = [
