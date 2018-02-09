@@ -2,11 +2,11 @@
 
 namespace Tests;
 
-use Illuminate\Support\Collection;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use BotMan\BotMan\Users\User;
 use PHPUnit_Framework_TestCase;
+use Illuminate\Support\Collection;
 use BotMan\Drivers\Telegram\TelegramDriver;
 use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Attachments\Audio;
@@ -219,14 +219,14 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'last_name' => 'Pociot',
             'username' => 'marcelpociot',
             'photo_url' => 'https://some/picture.jpg',
-            'auth_date' => time()
+            'auth_date' => time(),
         ];
 
         // Calculate hash
         $check = Collection::make($queryParameters)
             ->except('hash')
-            ->map(function($value, $key) {
-                return $key . '=' . $value;
+            ->map(function ($value, $key) {
+                return $key.'='.$value;
             })
             ->values()
             ->sort();
@@ -241,8 +241,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver = new TelegramDriver($request, [
             'telegram' => [
-                'token' => $token
-            ]
+                'token' => $token,
+            ],
         ], m::mock(Curl::class));
 
         $event = $driver->hasMatchingEvent();
@@ -266,14 +266,14 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'last_name' => 'Pociot',
             'username' => 'marcelpociot',
             'photo_url' => 'https://some/picture.jpg',
-            'auth_date' => time() - 90000
+            'auth_date' => time() - 90000,
         ];
 
         // Calculate hash
         $check = Collection::make($queryParameters)
             ->except('hash')
-            ->map(function($value, $key) {
-                return $key . '=' . $value;
+            ->map(function ($value, $key) {
+                return $key.'='.$value;
             })
             ->values()
             ->sort();
@@ -288,8 +288,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver = new TelegramDriver($request, [
             'telegram' => [
-                'token' => $token
-            ]
+                'token' => $token,
+            ],
         ], m::mock(Curl::class));
 
         $this->assertFalse($driver->hasMatchingEvent());
@@ -307,15 +307,15 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'username' => 'marcelpociot',
             'photo_url' => 'https://some/picture.jpg',
             'auth_date' => time(),
-            'hash' => 'kajhsdkjhaskjdh'
+            'hash' => 'kajhsdkjhaskjdh',
         ];
 
         $request = new Request($queryParameters);
 
         $driver = new TelegramDriver($request, [
             'telegram' => [
-                'token' => $token
-            ]
+                'token' => $token,
+            ],
         ], m::mock(Curl::class));
 
         $this->assertFalse($driver->hasMatchingEvent());
@@ -332,14 +332,14 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'last_name' => 'Pociot',
             'username' => 'marcelpociot',
             'photo_url' => 'https://some/picture.jpg',
-            'auth_date' => time()
+            'auth_date' => time(),
         ];
 
         // Calculate hash
         $check = Collection::make($queryParameters)
             ->except('hash')
-            ->map(function($value, $key) {
-                return $key . '=' . $value;
+            ->map(function ($value, $key) {
+                return $key.'='.$value;
             })
             ->values()
             ->sort();
@@ -354,8 +354,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver = new TelegramDriver($request, [
             'telegram' => [
-                'token' => $token
-            ]
+                'token' => $token,
+            ],
         ], m::mock(Curl::class));
 
         $message = $driver->getMessages();
