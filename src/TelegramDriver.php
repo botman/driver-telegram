@@ -27,6 +27,9 @@ class TelegramDriver extends HttpDriver
     const FILE_API_URL = 'https://api.telegram.org/file/bot';
     const LOGIN_EVENT = 'telegram_login';
 
+    const PARSE_MODE_MARKDOWN = 'Markdown';
+    const PARSE_MODE_HTML = 'HTML';
+
     protected $endpoint = 'sendMessage';
 
     protected $messages = [];
@@ -298,6 +301,11 @@ class TelegramDriver extends HttpDriver
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
         ], $additionalParameters);
+
+        if ($this->config->has('parse_mode') && in_array($this->config->get('parse_mode'), [self::PARSE_MODE_MARKDOWN, self::PARSE_MODE_HTML])) {
+            $parameters['parse_mode'] = $this->config->get('parse_mode');
+        }
+
         /*
          * If we send a Question with buttons, ignore
          * the text and append the question.
