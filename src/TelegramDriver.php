@@ -133,8 +133,8 @@ class TelegramDriver extends HttpDriver
         // Get sorted array of values
         $check = $this->queryParameters
             ->except('hash')
-            ->map(function($value, $key) {
-                return $key . '=' . $value;
+            ->map(function ($value, $key) {
+                return $key.'='.$value;
             })
             ->values()
             ->sort();
