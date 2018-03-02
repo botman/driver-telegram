@@ -294,10 +294,13 @@ class TelegramDriver extends HttpDriver
      */
     public function buildServicePayload($message, $matchingMessage, $additionalParameters = [])
     {
+        $this->endpoint = 'sendMessage';
+
         $recipient = $matchingMessage->getRecipient() === '' ? $matchingMessage->getSender() : $matchingMessage->getRecipient();
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
         ], $additionalParameters);
+
         /*
          * If we send a Question with buttons, ignore
          * the text and append the question.
