@@ -2,6 +2,7 @@
 
 namespace BotMan\Drivers\Telegram;
 
+use BotMan\Drivers\Telegram\Extensions\Question as TelegramQuestion;
 use Illuminate\Support\Collection;
 use BotMan\BotMan\Drivers\HttpDriver;
 use BotMan\BotMan\Messages\Incoming\Answer;
@@ -256,6 +257,10 @@ class TelegramDriver extends HttpDriver
      */
     private function convertQuestion(Question $question)
     {
+        if ($question instanceof TelegramQuestion) {
+            return $question->getButtonsToArray();
+        }
+
         $replies = Collection::make($question->getButtons())->map(function ($button) {
             return [
                 array_merge([
