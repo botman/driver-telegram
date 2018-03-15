@@ -339,6 +339,9 @@ class TelegramDriver extends HttpDriver
                     $this->endpoint = 'sendLocation';
                     $parameters['latitude'] = $attachment->getLatitude();
                     $parameters['longitude'] = $attachment->getLongitude();
+                    if (isset($parameters['title'], $parameters['address'])) {
+                        $this->endpoint = 'sendVenue';
+                    }
                 }
             } else {
                 $parameters['text'] = $message->getText();
