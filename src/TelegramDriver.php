@@ -72,6 +72,43 @@ class TelegramDriver extends HttpDriver
     }
 
     /**
+     * @param IncomingMessage $matchingMessage
+     * @return array $userProfilePhotoPaths
+     * @throws TelegramException
+     */
+    public function getUserProfilePhotos(IncomingMessage $matchingMessage)
+    {
+        $profilePhotoParameters = [
+            'user_id' => $matchingMessage->getSender(),
+            'limit' => 1,
+        ];
+
+        $responseProfilePhoto = $this->http->post($this->buildApiUrl('getUserProfilePhotos'), [], $profilePhotoParameters);
+
+        $responseDataProfilePhotos = json_decode($responseProfilePhoto->getContent(), true);
+        if ($responseProfilePhoto->getStatusCode() !== 200) {
+            throw new TelegramException('Error retrieving user photos info: '.$responseDataProfilePhotos['description']);
+        }
+
+        foreach ($responseDataProfilePhotos['result']['photos'] as $photoArray) {
+            foreach ($photoArray as $photo) {
+                $profilePhotoParameters = [
+                    'file_id' => $photo['file_id'],
+                ];
+                $responsePhotoFile = $this->http->post($this->buildApiUrl('getFile'), [], $profilePhotoParameters);
+
+                $responseDataPhotoFile = json_decode($responsePhotoFile->getContent(), true);
+                if ($responsePhotoFile->getStatusCode() !== 200) {
+                    throw new TelegramException('Error retrieving user photos info: '.$responseDataPhotoFile['description']);
+                }
+                $userProfilePhotoPaths[] = 'https://api.telegram.org/file/bot'.env('TELEGRAM_TOKEN').'/'.$responseDataPhotoFile['result']['file_path'];
+            }
+        }
+
+        return $userProfilePhotoPaths;
+    }
+
+    /**
      * Determine if the request is for this driver.
      *
      * @return bool
