@@ -91,8 +91,8 @@ class TelegramDriver extends HttpDriver
             throw new TelegramException('Error retrieving user photos info: '.$responseDataProfilePhotos['description']);
         }
 
-        foreach ($responseDataProfilePhotos['result']['photos'] as $photoArray){
-            foreach ($photoArray as $photo){
+        foreach ($responseDataProfilePhotos['result']['photos'] as $photoArray) {
+            foreach ($photoArray as $photo) {
                 $profilePhotoParameters = [
                     'file_id' => $photo['file_id'],
                 ];
@@ -102,7 +102,7 @@ class TelegramDriver extends HttpDriver
                 if ($responsePhotoFile->getStatusCode() !== 200) {
                     throw new TelegramException('Error retrieving user photos info: '.$responseDataPhotoFile['description']);
                 }
-                $userProfilePhotoPaths[] = "https://api.telegram.org/file/bot".env('TELEGRAM_TOKEN')."/".$responseDataPhotoFile['result']['file_path'];
+                $userProfilePhotoPaths[] = 'https://api.telegram.org/file/bot'.env('TELEGRAM_TOKEN').'/'.$responseDataPhotoFile['result']['file_path'];
             }
         }
 
