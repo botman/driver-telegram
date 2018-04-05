@@ -73,7 +73,7 @@ class TelegramRegisterCommand extends Command
 
     /**
      * return a success message depending on a
-     * remove option
+     * remove option.
      *
      * @return string
      */
