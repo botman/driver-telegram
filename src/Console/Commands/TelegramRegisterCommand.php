@@ -11,14 +11,14 @@ class TelegramRegisterCommand extends Command
      *
      * @var string
      */
-    protected $signature = 'botman:telegram:register {--output}';
+    protected $signature = 'botman:telegram:register {--remove} {--output}';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Register your bot with Telegram\'s webhook';
+    protected $description = 'Register or unregister your bot with Telegram\'s webhook';
 
     /**
      * Execute the console command.
@@ -29,8 +29,13 @@ class TelegramRegisterCommand extends Command
     {
         $url = 'https://api.telegram.org/bot'
                 .config('botman.telegram.token')
-                .'/setWebhook?url='
-                .$this->ask('What is the target url for the telegram bot?');
+                .'/setWebhook';
+
+        $remove = $this->option('remove', null);
+
+        if (! $remove) {
+            $url .= '?url='.$this->ask('What is the target url for the telegram bot?');
+        }
 
         $this->info('Using '.$url);
 
@@ -39,7 +44,10 @@ class TelegramRegisterCommand extends Command
         $output = json_decode(file_get_contents($url));
 
         if ($output->ok == true && $output->result == true) {
-            $this->info('Your bot is now set up with Telegram\'s webhook!');
+            $this->info($remove
+                ? 'Your bot Telegram\'s webhook has been removed!'
+                : 'Your bot is now set up with Telegram\'s webhook!'
+            );
         }
 
         if ($this->option('output')) {
@@ -47,3 +55,4 @@ class TelegramRegisterCommand extends Command
         }
     }
 }
+
