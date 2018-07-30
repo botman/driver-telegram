@@ -180,6 +180,30 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_calls_group_chat_created_event()
+    {
+        $driver = $this->getDriver([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'text' => 'Hi Julia',
+                'group_chat_created' => true,
+            ],
+        ]);
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('group_chat_created', $event->getName());
+        $this->assertTrue($event->getPayload());
+    }
+
+    /** @test */
     public function it_calls_left_chat_member_event()
     {
         $driver = $this->getDriver([

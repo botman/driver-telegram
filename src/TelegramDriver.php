@@ -26,6 +26,13 @@ class TelegramDriver extends HttpDriver
     const API_URL = 'https://api.telegram.org/bot';
     const FILE_API_URL = 'https://api.telegram.org/file/bot';
     const LOGIN_EVENT = 'telegram_login';
+    const GENERIC_EVENTS = [
+        'new_chat_members',
+        'left_chat_member',
+        'new_chat_title',
+        'new_chat_photo',
+        'group_chat_created'
+    ];
 
     protected $endpoint = 'sendMessage';
 
@@ -97,24 +104,13 @@ class TelegramDriver extends HttpDriver
             $event->setName(self::LOGIN_EVENT);
         }
 
-        if ($this->event->has('new_chat_members')) {
-            $event = new GenericEvent($this->event->get('new_chat_members'));
-            $event->setName('new_chat_members');
-        }
+        foreach (self::GENERIC_EVENTS as $genericEvent) {
+            if ($this->event->has($genericEvent)) {
+                $event = new GenericEvent($this->event->get($genericEvent));
+                $event->setName($genericEvent);
 
-        if ($this->event->has('left_chat_member')) {
-            $event = new GenericEvent($this->event->get('left_chat_member'));
-            $event->setName('left_chat_member');
-        }
-
-        if ($this->event->has('new_chat_title')) {
-            $event = new GenericEvent($this->event->get('new_chat_title'));
-            $event->setName('new_chat_title');
-        }
-
-        if ($this->event->has('new_chat_photo')) {
-            $event = new GenericEvent($this->event->get('new_chat_photo'));
-            $event->setName('new_chat_photo');
+                return $event;
+            }
         }
 
         return $event;
