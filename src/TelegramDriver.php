@@ -131,6 +131,10 @@ class TelegramDriver extends HttpDriver
     {
         $check_hash = $this->queryParameters->get('hash');
 
+        if (empty($check_hash)) {
+            return false;
+        }
+
         // Get sorted array of values
         $check = $this->queryParameters
             ->except('hash')

@@ -346,6 +346,26 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_does_not_call_telegram_login_event_when_check_hash_is_not_present()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'hash' => null,
+        ];
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token,
+            ],
+        ], m::mock(Curl::class));
+
+        $this->assertFalse($driver->hasMatchingEvent());
+    }
+
+    /** @test */
     public function telegram_login_event_has_the_correct_chat_id()
     {
         $token = 'randomtoken';
