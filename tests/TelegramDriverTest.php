@@ -366,6 +366,51 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_should_not_consider_array_query_parameters_for_hash_check_in_login_event()
+    {
+        $token = 'randomtoken';
+
+        $queryParameters = [
+            'id' => '12345',
+            'first_name' => 'Marcel',
+            'last_name' => 'Pociot',
+            'username' => 'marcelpociot',
+            'photo_url' => 'https://some/picture.jpg',
+            'auth_date' => time(),
+            'array_parameter' => [
+                'greeting' => 'hello world',
+                'gesture' => 'handshake',
+            ]
+        ];
+
+        // Calculate hash
+        $check = Collection::make($queryParameters)
+            ->except(['hash', 'array_parameter'])
+            ->map(function ($value, $key) {
+                return $key.'='.$value;
+            })
+            ->values()
+            ->sort();
+        $check_string = implode("\n", $check->toArray());
+
+        $secret = hash('sha256', $token, true);
+        $hash = hash_hmac('sha256', $check_string, $secret);
+
+        $queryParameters['hash'] = $hash;
+
+        $request = new Request($queryParameters);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'token' => $token,
+            ],
+        ], m::mock(Curl::class));
+
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+    }
+
+    /** @test */
     public function telegram_login_event_has_the_correct_chat_id()
     {
         $token = 'randomtoken';
