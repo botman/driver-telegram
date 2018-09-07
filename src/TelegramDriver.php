@@ -258,15 +258,46 @@ class TelegramDriver extends HttpDriver
     private function convertQuestion(Question $question)
     {
         $replies = Collection::make($question->getButtons())->map(function ($button) {
-            return [
-                array_merge([
-                    'text' => (string) $button['text'],
-                    'callback_data' => (string) $button['value'],
-                ], $button['additional']),
-            ];
+
+            if (! array_key_exists('text', $button)) {
+                return $this->convertQuestionButtonsGrouped($button);
+            }
+
+            return $this->convertQuestionButton($button);
         });
 
         return $replies->toArray();
+    }
+
+    /**
+     * Convert a group of buttons into a row of buttons.
+     *
+     * @param $buttons
+     * @return array
+     */
+    private function convertQuestionButtonsGrouped($buttons)
+    {
+        return Collection::make($buttons)->flatMap(function ($button) {
+
+            return $this->convertQuestionButton($button->toArray());
+
+        })->toArray();
+    }
+
+    /**
+     * Convert a button to a Telegram valid object.
+     *
+     * @param $button
+     * @return array
+     */
+    private function convertQuestionButton($button)
+    {
+        return [
+            array_merge([
+                'text' => (string) $button['text'],
+                'callback_data' => (string) $button['value'],
+            ], $button['additional']),
+        ];
     }
 
     /**
