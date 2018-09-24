@@ -257,16 +257,58 @@ class TelegramDriver extends HttpDriver
      */
     private function convertQuestion(Question $question)
     {
-        $replies = Collection::make($question->getButtons())->map(function ($button) {
-            return [
-                array_merge([
-                    'text' => (string) $button['text'],
-                    'callback_data' => (string) $button['value'],
-                ], $button['additional']),
-            ];
-        });
+        $rowNumber = $question->getButtonRows();
+        if( $rowNumber > 0)
+        {
+            $response2 = array();
+            $replies = Collection::make($question->getButtons())->map(function ($button,$i) {
+    
+                return [
+                    array_merge([
+                        'text' => (string) $button['text'],
+                        'callback_data' => (string) $button['value'],
+                    ], $button['additional']),
+                ];
+            });
+           $replies = $replies->toArray();
+        
+            $chunked = array_chunk($replies,$rowNumber);
+            for($i=0;$i < count($chunked);$i++)
+            {
+                $response1 = array();
+                foreach($chunked[$i] as $chunk)
+                {
+                     array_push($response1,array(
+                    'text' =>   $chunk[0]['text'],
+                    'callback_data' => $chunk[0]['callback_data'],
+                     ))  ;
+    
+                }
+                   array_push($response2,$response1);
+     
+             
 
-        return $replies->toArray();
+          
+            }
+                return $response2 ;
+
+        }
+        else
+        {
+            $replies = Collection::make($question->getButtons())->map(function ($button) {
+                return [
+                    array_merge([
+                        'text' => (string) $button['text'],
+                        'callback_data' => (string) $button['value'],
+                    ], $button['additional']),
+                ];
+            });
+            return $replies->toArray();
+        }
+         
+ 
+        
+        
     }
 
     /**
