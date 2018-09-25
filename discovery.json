@@ -7,6 +7,7 @@
         "BotMan\\Drivers\\Telegram\\TelegramAudioDriver",
         "BotMan\\Drivers\\Telegram\\TelegramFileDriver",
         "BotMan\\Drivers\\Telegram\\TelegramLocationDriver",
+        "BotMan\\Drivers\\Telegram\\TelegramContactDriver",
         "BotMan\\Drivers\\Telegram\\TelegramPhotoDriver",
         "BotMan\\Drivers\\Telegram\\TelegramVideoDriver"
     ],

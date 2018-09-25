@@ -11,6 +11,7 @@ use BotMan\Drivers\Telegram\TelegramPhotoDriver;
 use BotMan\Drivers\Telegram\TelegramVideoDriver;
 use BotMan\Studio\Providers\StudioServiceProvider;
 use BotMan\Drivers\Telegram\TelegramLocationDriver;
+use BotMan\Drivers\Telegram\TelegramContactDriver;
 use BotMan\Drivers\Telegram\Console\Commands\TelegramRegisterCommand;
 
 class TelegramServiceProvider extends ServiceProvider
@@ -46,6 +47,7 @@ class TelegramServiceProvider extends ServiceProvider
         DriverManager::loadDriver(TelegramAudioDriver::class);
         DriverManager::loadDriver(TelegramFileDriver::class);
         DriverManager::loadDriver(TelegramLocationDriver::class);
+        DriverManager::loadDriver(TelegramContactDriver::class);
         DriverManager::loadDriver(TelegramPhotoDriver::class);
         DriverManager::loadDriver(TelegramVideoDriver::class);
     }
