@@ -91,7 +91,7 @@ class TelegramDriver extends HttpDriver
     public function matchesRequest()
     {
         $noAttachments = $this->event->keys()->filter(function ($key) {
-            return in_array($key, ['audio', 'voice', 'video', 'photo', 'location', 'document']);
+            return in_array($key, ['audio', 'voice', 'video', 'photo', 'location', 'contact', 'document']);
         })->isEmpty();
 
         return $noAttachments && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query'))) && ! is_null($this->payload->get('update_id'));
@@ -374,6 +374,13 @@ class TelegramDriver extends HttpDriver
                     if (isset($parameters['title'], $parameters['address'])) {
                         $this->endpoint = 'sendVenue';
                     }
+                } elseif ($attachment instanceof Contact) {
+                    $this->endpoint = 'sendContact';
+                    $parameters['phone_number'] = $attachment->getPhoneNumber();
+                    $parameters['first_name'] = $attachment->getFirstName();
+                    $parameters['last_name'] = $attachment->getLastName();
+                    $parameters['user_id'] = $attachment->getUserId();
+                    $parameters['vcard'] = $attachment->getVcard();
                 }
             } else {
                 $parameters['text'] = $message->getText();
