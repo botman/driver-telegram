@@ -52,6 +52,10 @@ class TelegramDriver extends HttpDriver
         if (empty($message)) {
             $message = $this->payload->get('edited_message');
         }
+        if (empty($message)) {
+            $message = $this->payload->get('channel_post');
+            $message['from'] = ['id' => 0];
+        }
         $this->event = Collection::make($message);
         $this->config = Collection::make($this->config->get('telegram'));
         $this->queryParameters = Collection::make($request->query);
