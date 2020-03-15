@@ -1243,7 +1243,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123')), $message));
     }
 
-  	/** @test */
+    /** @test */
     public function it_can_reply_message_objects_with_contact_with_vcard()
     {
         $responseData = [
@@ -1285,8 +1285,8 @@ END:VCARD';
                 'phone_number' => '0775269856',
                 'first_name' => 'Daniele',
                 'last_name' => 'Rapisarda',
-				'user_id' => '123',
-				'caption' => 'Test',
+                'user_id' => '123',
+                'caption' => 'Test',
                 'vcard' => $vcard,
             ]);
 
