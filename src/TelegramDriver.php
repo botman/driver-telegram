@@ -10,6 +10,7 @@ use BotMan\Drivers\Telegram\Extensions\User;
 use BotMan\BotMan\Messages\Attachments\Audio;
 use BotMan\BotMan\Messages\Attachments\Image;
 use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Attachments\Contact;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Drivers\Events\GenericEvent;
@@ -349,7 +350,9 @@ class TelegramDriver extends HttpDriver
                     $parameters['first_name'] = $attachment->getFirstName();
                     $parameters['last_name'] = $attachment->getLastName();
                     $parameters['user_id'] = $attachment->getUserId();
-                    $parameters['vcard'] = $attachment->getVcard();
+                    if (null !== $attachment->getVcard()) {
+                        $parameters['vcard'] = $attachment->getVcard();
+                    }
                 }
             } else {
                 $parameters['text'] = $message->getText();

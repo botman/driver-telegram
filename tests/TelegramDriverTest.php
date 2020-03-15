@@ -1129,7 +1129,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Location('123', '321')), $message));
     }
 
-  	/** @test */
+    /** @test */
     public function it_can_reply_message_objects_with_contact()
     {
         $responseData = [
@@ -1154,9 +1154,9 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'chat_id' => '12345',
                 'phone_number' => '0775269856',
                 'first_name' => 'Daniele',
-                'first_name' => 'Rapisarda',
-				'user_id' => '123',
-				'caption' => 'Test',
+                'last_name' => 'Rapisarda',
+                'user_id' => '123',
+                'caption' => 'Test'
             ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
@@ -1166,6 +1166,62 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123')), $message));
+    }
+
+  	/** @test */
+    public function it_can_reply_message_objects_with_contact_with_vcard()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $vcard = 'BEGIN:VCARD
+VERSION:4.0
+N:Gump;Forrest;;Mr.;
+FN:Forrest Gump
+ORG:Bubba Gump Shrimp Co.
+TITLE:Shrimp Man
+PHOTO;MEDIATYPE=image/gif:http://www.example.com/dir_photos/my_photo.gif
+TEL;TYPE=work,voice;VALUE=uri:tel:+1-111-555-1212
+TEL;TYPE=home,voice;VALUE=uri:tel:+1-404-555-1212
+ADR;TYPE=WORK;PREF=1;LABEL="100 Waters Edge\nBaytown\, LA 30314\nUnited States of America":;;100 Waters Edge;Baytown;LA;30314;United States of America
+ADR;TYPE=HOME;LABEL="42 Plantation St.\nBaytown\, LA 30314\nUnited States of America":;;42 Plantation St.;Baytown;LA;30314;United States of America
+EMAIL:forrestgump@example.com
+REV:20080424T195243Z
+x-qq:21588891
+END:VCARD';
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendContact', [], [
+                'chat_id' => '12345',
+                'phone_number' => '0775269856',
+                'first_name' => 'Daniele',
+                'last_name' => 'Rapisarda',
+				'user_id' => '123',
+				'caption' => 'Test',
+                'vcard' => $vcard,
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123', $vcard)), $message));
     }
 
     /** @test */
