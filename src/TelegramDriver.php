@@ -298,10 +298,11 @@ class TelegramDriver extends HttpDriver
         $this->endpoint = 'sendMessage';
 
         $recipient = $matchingMessage->getRecipient() === '' ? $matchingMessage->getSender() : $matchingMessage->getRecipient();
+        $defaultAdditionalParameters = $this->config->get('default_additional_parameters', []);
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
-        ], $additionalParameters);
-
+        ], $additionalParameters + $defaultAdditionalParameters);
+        
         /*
          * If we send a Question with buttons, ignore
          * the text and append the question.
