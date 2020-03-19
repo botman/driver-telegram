@@ -460,7 +460,8 @@ class TelegramDriver extends HttpDriver
             "Post Parameters: ".print_r($postParameters, true)."\n".
             "Headers: ". print_r($headers,true)."\n";
 
-        throw new TelegramConnectionException($message );
+        $message = str_replace($this->config->get('token'), 'TELEGRAM-TOKEN-HIDDEN', $message);
+        throw new TelegramConnectionException($message);
 
     }
 }
