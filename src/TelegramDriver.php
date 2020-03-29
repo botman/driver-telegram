@@ -262,6 +262,7 @@ class TelegramDriver extends HttpDriver
                 array_merge([
                     'text' => (string) $button['text'],
                     'callback_data' => (string) $button['value'],
+                    'url' => (string) $button['url'], //dedy
                 ], $button['additional']),
             ];
         });
