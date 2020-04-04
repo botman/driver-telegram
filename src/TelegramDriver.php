@@ -63,6 +63,7 @@ class TelegramDriver extends HttpDriver
      * @param IncomingMessage $matchingMessage
      * @return User
      * @throws TelegramException
+     * @throws TelegramConnectionException
      */
     public function getUser(IncomingMessage $matchingMessage)
     {
@@ -437,17 +438,37 @@ class TelegramDriver extends HttpDriver
         return self::FILE_API_URL.$this->config->get('token').'/'.$endpoint;
     }
 
+    /**
+     * @param $url
+     * @param array $urlParameters
+     * @param array $postParameters
+     * @param array $headers
+     * @param bool $asJSON
+     * @param int $retryCount
+     * @return Response
+     * @throws TelegramConnectionException
+     */
     private function postWithExceptionHandling(
         $url,
         array $urlParameters = [],
         array $postParameters = [],
         array $headers = [],
-        $asJSON = false
+        $asJSON = false,
+        int $retryCount = 0
     ) {
         $response = $this->http->post($url, $urlParameters, $postParameters, $headers, $asJSON);
         $responseData = json_decode($response->getContent(), true);
         if ($response->isOk() && isset($responseData['ok']) && true ===  $responseData['ok']) {
             return $response;
+        } elseif ($this->config->get('retry_http_exceptions') && $retryCount <= $this->config->get('retry_http_exceptions') ) {
+            $retryCount++;
+            if ($response->getStatusCode() == 429 && isset($responseData['retry_after']) && is_numeric($responseData['retry_after'])) {
+                usleep($responseData['retry_after'] * 1000000);
+            } else {
+                $multiplier = $this->config->get('retry_http_exceptions_multiplier')??2;
+                usleep($retryCount*$multiplier* 1000000);
+            }
+            return $this->postWithExceptionHandling($url,$urlParameters, $postParameters, $headers , $asJSON, $retryCount);
         }
         $responseData['description'] = $responseData['description'] ?? 'No description from Telegram';
         $responseData['error_code'] = $responseData['error_code'] ?? 'No error code from Telegram';
