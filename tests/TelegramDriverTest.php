@@ -937,14 +937,16 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $message = $driver->getMessages()[0];
         $throwable = null;
         try {
-            $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
-                $message, ['parse_mode' => 'MarkdownV2']));
-        }  catch (\Throwable $t) {
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+        } catch (\Throwable $t) {
             $throwable = $t;
             throw $t;
         }
         $this->assertNull($throwable);
-
     }
 
     /** @test */
@@ -975,9 +977,12 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $message = $driver->getMessages()[0];
         $throwable = null;
         try {
-            $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
-                $message, ['parse_mode' => 'MarkdownV2']));
-        }  catch (\Throwable $t) {
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+        } catch (\Throwable $t) {
             $throwable = $t;
         }
         $this->assertNotNull($throwable);
@@ -997,7 +1002,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'chat_id' => null,
             'parse_mode' => 'MarkdownV2',
             'text' => 'a message'
-        ], [], false)->times(3)->andReturn(clone $responseFailed, clone $responseFailed, $responseSucceeds );
+        ], [], false)->times(3)->andReturn(clone $responseFailed, clone $responseFailed, $responseSucceeds);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn($responseFailed);
@@ -1015,10 +1020,13 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $duration = 0.0;
         try {
             $start = microtime(true);
-            $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
-                $message, ['parse_mode' => 'MarkdownV2']));
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
             $duration = microtime(true) - $start;
-        }  catch (\Throwable $t) {
+        } catch (\Throwable $t) {
             $throwable = $t;
         }
         $this->assertNull($throwable);
@@ -1036,7 +1044,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             'chat_id' => null,
             'parse_mode' => 'MarkdownV2',
             'text' => 'a message'
-        ], [], false)->times(2)->andReturn($response429, $responseSucceeds );
+        ], [], false)->times(2)->andReturn($response429, $responseSucceeds);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
         $request->shouldReceive('getContent')->andReturn($response429);
@@ -1053,10 +1061,13 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $duration = 0.0;
         try {
             $start = microtime(true);
-            $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
-                $message, ['parse_mode' => 'MarkdownV2']));
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
             $duration = microtime(true) - $start;
-        }  catch (\Throwable $t) {
+        } catch (\Throwable $t) {
             $throwable = $t;
         }
         $this->assertNull($throwable);
@@ -1204,8 +1215,10 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
-        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test',
-            Audio::url('http://image.url/foo.mp3')), $message));
+        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create(
+            'Test',
+            Audio::url('http://image.url/foo.mp3')
+        ), $message));
     }
 
     /** @test */
@@ -1410,7 +1423,6 @@ END:VCARD';
         }
         $this->assertNotNull($throwable);
         $this->assertSame(TelegramException::class, get_class($throwable));
-
     }
 
     /** @test */
