@@ -2,6 +2,7 @@
 
 namespace BotMan\Drivers\Telegram;
 
+use BotMan\Drivers\Telegram\Exceptions\TelegramConnectionException;
 use Illuminate\Support\Collection;
 use BotMan\BotMan\Drivers\HttpDriver;
 use BotMan\BotMan\Messages\Incoming\Answer;
@@ -10,6 +11,7 @@ use BotMan\Drivers\Telegram\Extensions\User;
 use BotMan\BotMan\Messages\Attachments\Audio;
 use BotMan\BotMan\Messages\Attachments\Image;
 use BotMan\BotMan\Messages\Attachments\Video;
+use BotMan\BotMan\Messages\Attachments\Contact;
 use BotMan\BotMan\Messages\Outgoing\Question;
 use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Drivers\Events\GenericEvent;
@@ -61,6 +63,7 @@ class TelegramDriver extends HttpDriver
      * @param IncomingMessage $matchingMessage
      * @return User
      * @throws TelegramException
+     * @throws TelegramConnectionException
      */
     public function getUser(IncomingMessage $matchingMessage)
     {
@@ -69,7 +72,11 @@ class TelegramDriver extends HttpDriver
             'user_id' => $matchingMessage->getSender(),
         ];
 
-        $response = $this->http->post($this->buildApiUrl('getChatMember'), [], $parameters);
+        if ($this->config->get('throw_http_exceptions')) {
+            $response = $this->postWithExceptionHandling($this->buildApiUrl('getChatMember'), [], $parameters);
+        } else {
+            $response = $this->http->post($this->buildApiUrl('getChatMember'), [], $parameters);
+        }
 
         $responseData = json_decode($response->getContent(), true);
 
@@ -79,8 +86,13 @@ class TelegramDriver extends HttpDriver
 
         $userData = Collection::make($responseData['result']['user']);
 
-        return new User($userData->get('id'), $userData->get('first_name'), $userData->get('last_name'),
-            $userData->get('username'), $responseData['result']);
+        return new User(
+            $userData->get('id'),
+            $userData->get('first_name'),
+            $userData->get('last_name'),
+            $userData->get('username'),
+            $responseData['result']
+        );
     }
 
     /**
@@ -163,8 +175,10 @@ class TelegramDriver extends HttpDriver
 
         if ($callback !== null) {
             $callback['message']['chat']['id'];
-            $this->removeInlineKeyboard($callback['message']['chat']['id'],
-                $callback['message']['message_id']);
+            $this->removeInlineKeyboard(
+                $callback['message']['chat']['id'],
+                $callback['message']['message_id']
+            );
         }
     }
 
@@ -209,8 +223,12 @@ class TelegramDriver extends HttpDriver
             $callback = Collection::make($this->payload->get('callback_query'));
 
             $messages = [
-                new IncomingMessage($callback->get('data'), $callback->get('from')['id'],
-                    $callback->get('message')['chat']['id'], $callback->get('message')),
+                new IncomingMessage(
+                    $callback->get('data'),
+                    $callback->get('from')['id'],
+                    $callback->get('message')['chat']['id'],
+                    $callback->get('message')
+                ),
             ];
         } elseif ($this->isValidLoginRequest()) {
             $messages = [
@@ -218,8 +236,12 @@ class TelegramDriver extends HttpDriver
             ];
         } else {
             $messages = [
-                new IncomingMessage($this->event->get('text'), $this->event->get('from')['id'], $this->event->get('chat')['id'],
-                    $this->event),
+                new IncomingMessage(
+                    $this->event->get('text'),
+                    $this->event->get('from')['id'],
+                    $this->event->get('chat')['id'],
+                    $this->event
+                ),
             ];
         }
 
@@ -245,6 +267,9 @@ class TelegramDriver extends HttpDriver
             'action' => 'typing',
         ];
 
+        if ($this->config->get('throw_http_exceptions')) {
+            return $this->postWithExceptionHandling($this->buildApiUrl('sendChatAction'), [], $parameters);
+        }
         return $this->http->post($this->buildApiUrl('sendChatAction'), [], $parameters);
     }
 
@@ -283,7 +308,9 @@ class TelegramDriver extends HttpDriver
             'message_id' => $messageId,
             'inline_keyboard' => [],
         ];
-
+        if ($this->config->get('throw_http_exceptions')) {
+            return $this->postWithExceptionHandling($this->buildApiUrl('editMessageReplyMarkup'), [], $parameters);
+        }
         return $this->http->post($this->buildApiUrl('editMessageReplyMarkup'), [], $parameters);
     }
 
@@ -301,6 +328,7 @@ class TelegramDriver extends HttpDriver
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
         ], $additionalParameters);
+
 
         /*
          * If we send a Question with buttons, ignore
@@ -349,7 +377,9 @@ class TelegramDriver extends HttpDriver
                     $parameters['first_name'] = $attachment->getFirstName();
                     $parameters['last_name'] = $attachment->getLastName();
                     $parameters['user_id'] = $attachment->getUserId();
-                    $parameters['vcard'] = $attachment->getVcard();
+                    if (null !== $attachment->getVcard()) {
+                        $parameters['vcard'] = $attachment->getVcard();
+                    }
                 }
             } else {
                 $parameters['text'] = $message->getText();
@@ -367,6 +397,9 @@ class TelegramDriver extends HttpDriver
      */
     public function sendPayload($payload)
     {
+        if ($this->config->get('throw_http_exceptions')) {
+            return $this->postWithExceptionHandling($this->buildApiUrl($this->endpoint), [], $payload);
+        }
         return $this->http->post($this->buildApiUrl($this->endpoint), [], $payload);
     }
 
@@ -392,6 +425,9 @@ class TelegramDriver extends HttpDriver
             'chat_id' => $matchingMessage->getRecipient(),
         ], $parameters);
 
+        if ($this->config->get('throw_http_exceptions')) {
+            return $this->postWithExceptionHandling($this->buildApiUrl($endpoint), [], $parameters);
+        }
         return $this->http->post($this->buildApiUrl($endpoint), [], $parameters);
     }
 
@@ -415,5 +451,55 @@ class TelegramDriver extends HttpDriver
     protected function buildFileApiUrl($endpoint)
     {
         return self::FILE_API_URL.$this->config->get('token').'/'.$endpoint;
+    }
+
+    /**
+     * @param $url
+     * @param array $urlParameters
+     * @param array $postParameters
+     * @param array $headers
+     * @param bool $asJSON
+     * @param int $retryCount
+     * @return Response
+     * @throws TelegramConnectionException
+     */
+    private function postWithExceptionHandling(
+        $url,
+        array $urlParameters = [],
+        array $postParameters = [],
+        array $headers = [],
+        $asJSON = false,
+        int $retryCount = 0
+    ) {
+        $response = $this->http->post($url, $urlParameters, $postParameters, $headers, $asJSON);
+        $responseData = json_decode($response->getContent(), true);
+        if ($response->isOk() && isset($responseData['ok']) && true ===  $responseData['ok']) {
+            return $response;
+        } elseif ($this->config->get('retry_http_exceptions') && $retryCount <= $this->config->get('retry_http_exceptions')) {
+            $retryCount++;
+            if ($response->getStatusCode() == 429 && isset($responseData['retry_after']) && is_numeric($responseData['retry_after'])) {
+                usleep($responseData['retry_after'] * 1000000);
+            } else {
+                $multiplier = $this->config->get('retry_http_exceptions_multiplier')??2;
+                usleep($retryCount*$multiplier* 1000000);
+            }
+            return $this->postWithExceptionHandling($url, $urlParameters, $postParameters, $headers, $asJSON, $retryCount);
+        }
+        $responseData['description'] = $responseData['description'] ?? 'No description from Telegram';
+        $responseData['error_code'] = $responseData['error_code'] ?? 'No error code from Telegram';
+        $responseData['parameters'] = $responseData['parameters'] ?? 'No parameters from Telegram';
+
+
+        $message = "Status Code: {$response->getStatusCode()}\n".
+            "Description: ".print_r($responseData['description'], true)."\n".
+            "Error Code: ".print_r($responseData['error_code'], true)."\n".
+            "Parameters: ".print_r($responseData['parameters'], true)."\n".
+            "URL: $url\n".
+            "URL Parameters: ".print_r($urlParameters, true)."\n".
+            "Post Parameters: ".print_r($postParameters, true)."\n".
+            "Headers: ". print_r($headers, true)."\n";
+
+        $message = str_replace($this->config->get('token'), 'TELEGRAM-TOKEN-HIDDEN', $message);
+        throw new TelegramConnectionException($message);
     }
 }
