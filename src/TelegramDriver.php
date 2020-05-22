@@ -176,8 +176,9 @@ class TelegramDriver extends HttpDriver
     public function messagesHandled()
     {
         $callback = $this->payload->get('callback_query');
+        $hideInlineKeyboard = $this->config->get('hideInlineKeyboard', true);
 
-        if ($callback !== null) {
+        if ($callback !== null && $hideInlineKeyboard) {
             $callback['message']['chat']['id'];
             $this->removeInlineKeyboard(
                 $callback['message']['chat']['id'],

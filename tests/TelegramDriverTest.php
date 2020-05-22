@@ -637,7 +637,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function it_hides_keyboard()
+    public function it_hides_keyboard_by_default()
     {
         $responseData = [
             'update_id' => '1234567890',
@@ -677,6 +677,49 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver->messagesHandled();
     }
+
+    /** @test */
+    public function it_does_not_hide_keyboard_if_configured()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'callback_query' => [
+                'id' => '11717237123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'message' => [
+                    'message_id' => '123',
+                    'from' => [
+                        'id' => 'from_id',
+                    ],
+                    'chat' => [
+                        'id' => '1234',
+                    ],
+                    'date' => '1480369277',
+                    'text' => 'Telegram Text',
+                ],
+                'data' => 'FooBar',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldNotReceive('post');
+
+        $request = m::mock(Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $telegramConfig = [
+            'telegram' => [
+                'token' => 'TELEGRAM-BOT-TOKEN',
+                'hideInlineKeyboard' => false
+            ],
+        ];
+        $driver = new TelegramDriver($request, $telegramConfig, $html);
+
+        $driver->messagesHandled();
+    }
+
 
     /** @test */
     public function it_can_reply_string_messages()
