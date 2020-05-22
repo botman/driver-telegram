@@ -30,6 +30,15 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         ],
     ];
 
+    protected $telegramConfigWithDefaultAdditionalParameters = [
+        'telegram' => [
+            'token' => 'TELEGRAM-BOT-TOKEN',
+            'default_additional_parameters' => [
+                'foo' => 'bar'
+            ]
+        ],
+    ];
+
     public function tearDown()
     {
         m::close();
@@ -850,6 +859,121 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload('Test', $message, [
             'foo' => 'bar',
+        ]));
+    }
+
+    /** @test */
+    public function it_can_reply_with_default_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'bar',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message));
+    }
+
+    /** @test */
+    public function it_can_reply_with_default_additional_parameters_and_runtime_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'bar',
+                'baz' => 'foo',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message, [
+            'baz' => 'foo',
+        ]));
+    }
+
+    /** @test */
+    public function it_can_reply_with_default_additional_parameters_overriden_by_runtime_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'baz',
+                'baz' => 'foo',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message, [
+            'foo' => 'baz',
+            'baz' => 'foo',
         ]));
     }
 
