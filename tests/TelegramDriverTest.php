@@ -1461,7 +1461,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Location('123', '321')), $message));
     }
 
-  	/** @test */
+    /** @test */
     public function it_can_reply_message_objects_with_contact()
     {
         $responseData = [
@@ -1487,8 +1487,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'phone_number' => '0775269856',
                 'first_name' => 'Daniele',
                 'first_name' => 'Rapisarda',
-				'user_id' => '123',
-				'caption' => 'Test',
+                'user_id' => '123',
+                'caption' => 'Test',
             ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
