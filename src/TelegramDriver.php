@@ -347,9 +347,11 @@ class TelegramDriver extends HttpDriver
          */
         if ($message instanceof Question) {
             $parameters['text'] = $message->getText();
-            $parameters['reply_markup'] = json_encode([
-                'inline_keyboard' => $this->convertQuestion($message),
-            ], true);
+            if (!isset($parameters['reply_markup'])) {
+                $parameters['reply_markup'] = json_encode([
+                    'inline_keyboard' => $this->convertQuestion($message),
+                ], true);
+            }
         } elseif ($message instanceof OutgoingMessage) {
             if ($message->getAttachment() !== null) {
                 $attachment = $message->getAttachment();
