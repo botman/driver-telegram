@@ -288,12 +288,19 @@ class TelegramDriver extends HttpDriver
     private function convertQuestion(Question $question)
     {
         $replies = Collection::make($question->getButtons())->map(function ($button) {
-            return [
-                array_merge([
-                    'text' => (string) $button['text'],
-                    'callback_data' => (string) $button['value'],
-                ], $button['additional']),
+            $data = [
+                'text' => (string) $button['text'],
             ];
+
+            if (!isset($button['additional']['switch_inline_query']) &&
+                !isset($button['additional']['switch_inline_query_current_chat']))
+            {
+                $data['callback_data'] = (string) $button['value'];
+            }
+
+            $data = array_merge($data, $button['additional']);
+
+            return [$data];
         });
 
         return $replies->toArray();
