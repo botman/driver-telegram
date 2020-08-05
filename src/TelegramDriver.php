@@ -339,6 +339,26 @@ class TelegramDriver extends HttpDriver
     }
 
     /**
+     * Delete a message.
+     * 
+     * @param  int $chatId
+     * @param  int $messageId
+     * @return Response
+     */
+    public function deleteMessage($chatId, $messageId)
+    {
+        $parameters = [
+            'chat_id' => $chatId,
+            'message_id' => $messageId,
+        ];
+
+        if ($this->config->get('throw_http_exceptions')) {
+            return $this->postWithExceptionHandling($this->buildApiUrl('deleteMessage'), [], $parameters);
+        }
+        return $this->http->post($this->buildApiUrl('deleteMessage'), [], $parameters);
+    }
+
+    /**
      * @param string|Question|IncomingMessage $message
      * @param \BotMan\BotMan\Messages\Incoming\IncomingMessage $matchingMessage
      * @param array $additionalParameters
