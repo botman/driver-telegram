@@ -306,7 +306,7 @@ class TelegramDriver extends HttpDriver
      * @param  int $messageId
      * @return Response
      */
-    private function removeInlineKeyboard($chatId, $messageId)
+    public function removeInlineKeyboard($chatId, $messageId)
     {
         $parameters = [
             'chat_id' => $chatId,
