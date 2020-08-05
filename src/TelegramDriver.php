@@ -300,19 +300,38 @@ class TelegramDriver extends HttpDriver
     }
 
     /**
-     * Removes the inline keyboard from an interactive
-     * message.
+     * Removes the inline keyboard from an interactive message.
+     * 
      * @param  int $chatId
      * @param  int $messageId
      * @return Response
      */
-    public function removeInlineKeyboard($chatId, $messageId)
+    public function removeInlineKeyboard($chatId, $messageId, $isInlineMessage = false)
     {
         $parameters = [
             'chat_id' => $chatId,
-            'message_id' => $messageId,
             'inline_keyboard' => [],
         ];
+
+        if ($isInlineMessage) {
+            $parameters['inline_message_id'] = $messageId;
+        } else {
+            $parameters['message_id'] = $messageId;
+        }
+        
+        return $this->editInlineKeyboard($parameters);
+    }
+
+    /**
+     * Edit the inline keyboard from an interactive message.
+     * 
+     * Read more: https://core.telegram.org/bots/api#editmessagereplymarkup
+     * 
+     * @param  array  $parameters
+     * @return Response
+     */
+    public function editInlineKeyboard($parameters)
+    {
         if ($this->config->get('throw_http_exceptions')) {
             return $this->postWithExceptionHandling($this->buildApiUrl('editMessageReplyMarkup'), [], $parameters);
         }
