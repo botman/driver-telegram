@@ -268,14 +268,10 @@ class TelegramDriver extends HttpDriver
     public function types(IncomingMessage $matchingMessage)
     {
         $parameters = [
-            'chat_id' => $matchingMessage->getRecipient(),
             'action' => 'typing',
         ];
 
-        if ($this->config->get('throw_http_exceptions')) {
-            return $this->postWithExceptionHandling($this->buildApiUrl('sendChatAction'), [], $parameters);
-        }
-        return $this->http->post($this->buildApiUrl('sendChatAction'), [], $parameters);
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
     }
 
     /**
