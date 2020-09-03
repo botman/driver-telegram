@@ -16,13 +16,13 @@
     ],
     "require": {
         "php": ">=7.0",
-        "botman/botman": "~2.0"
+        "botman/botman": "^2.0"
     },
     "require-dev": {
-        "botman/studio-addons": "~1.0",
-        "illuminate/contracts": "~5.5.0",
-        "phpunit/phpunit": "~5.0",
-        "mockery/mockery": "dev-master",
+        "botman/studio-addons": "^1.0",
+        "illuminate/contracts": "^5.5",
+        "phpunit/phpunit": "^5.0",
+        "mockery/mockery": "^1.1",
         "ext-curl": "*"
     },
     "autoload": {
