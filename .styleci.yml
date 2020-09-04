@@ -1,4 +1,1 @@
-preset: laravel
-
-enabled:
-  - unalign_double_arrow
+preset: psr2

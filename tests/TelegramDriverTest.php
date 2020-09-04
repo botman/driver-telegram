@@ -2,6 +2,7 @@
 
 namespace Tests;
 
+use BotMan\Drivers\Telegram\Exceptions\TelegramConnectionException;
 use Mockery as m;
 use BotMan\BotMan\Http\Curl;
 use BotMan\BotMan\Users\User;
@@ -26,6 +27,15 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     protected $telegramConfig = [
         'telegram' => [
             'token' => 'TELEGRAM-BOT-TOKEN',
+        ],
+    ];
+
+    protected $telegramConfigWithDefaultAdditionalParameters = [
+        'telegram' => [
+            'token' => 'TELEGRAM-BOT-TOKEN',
+            'default_additional_parameters' => [
+                'foo' => 'bar'
+            ]
         ],
     ];
 
@@ -627,7 +637,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function it_hides_keyboard()
+    public function it_hides_keyboard_by_default()
     {
         $responseData = [
             'update_id' => '1234567890',
@@ -667,6 +677,49 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $driver->messagesHandled();
     }
+
+    /** @test */
+    public function it_does_not_hide_keyboard_if_configured()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'callback_query' => [
+                'id' => '11717237123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'message' => [
+                    'message_id' => '123',
+                    'from' => [
+                        'id' => 'from_id',
+                    ],
+                    'chat' => [
+                        'id' => '1234',
+                    ],
+                    'date' => '1480369277',
+                    'text' => 'Telegram Text',
+                ],
+                'data' => 'FooBar',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldNotReceive('post');
+
+        $request = m::mock(Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $telegramConfig = [
+            'telegram' => [
+                'token' => 'TELEGRAM-BOT-TOKEN',
+                'hideInlineKeyboard' => false
+            ],
+        ];
+        $driver = new TelegramDriver($request, $telegramConfig, $html);
+
+        $driver->messagesHandled();
+    }
+
 
     /** @test */
     public function it_can_reply_string_messages()
@@ -853,6 +906,121 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_can_reply_with_default_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'bar',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message));
+    }
+
+    /** @test */
+    public function it_can_reply_with_default_additional_parameters_and_runtime_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'bar',
+                'baz' => 'foo',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message, [
+            'baz' => 'foo',
+        ]));
+    }
+
+    /** @test */
+    public function it_can_reply_with_default_additional_parameters_overriden_by_runtime_additional_parameters()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+                'chat_id' => '12345',
+                'text' => 'Test',
+                'foo' => 'baz',
+                'baz' => 'foo',
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfigWithDefaultAdditionalParameters, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload('Test', $message, [
+            'foo' => 'baz',
+            'baz' => 'foo',
+        ]));
+    }
+
+    /** @test */
     public function it_is_configured()
     {
         $request = m::mock(Request::class.'[getContent]');
@@ -909,6 +1077,168 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test'), $message));
+    }
+
+    /** @test */
+    public function it_does_not_throw_an_exception_when_a_message_cant_be_sent_and_not_configured()
+    {
+        $response = new Response('{
+    "ok": false,
+    "error_code": 400,
+    "description": "Bad Request: can\'t parse entities: Can\'t find end of Italic entity at byte offset 10"
+}', 400);
+
+
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+            'chat_id' => null,
+            'parse_mode' => 'MarkdownV2',
+            'text' => 'unparsable_string'
+        ])->once()->andReturn($response);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn($response);
+
+        $driver = new TelegramDriver($request, $this->telegramConfig, $htmlInterface);
+
+        $message = $driver->getMessages()[0];
+        $throwable = null;
+        try {
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+        } catch (\Throwable $t) {
+            $throwable = $t;
+            throw $t;
+        }
+        $this->assertNull($throwable);
+    }
+
+    /** @test */
+    public function it_throws_an_exception_when_a_message_cant_be_sent_and_configured()
+    {
+        $response = new Response('{
+    "ok": false,
+    "error_code": 400,
+    "description": "Bad Request: can\'t parse entities: Can\'t find end of Italic entity at byte offset 10"
+}', 400);
+
+
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+            'chat_id' => null,
+            'parse_mode' => 'MarkdownV2',
+            'text' => 'unparsable_string'
+        ], [], false)->once()->andReturn($response);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn($response);
+
+        $configurationWithHttpExceptions = $this->telegramConfig;
+        $configurationWithHttpExceptions['telegram']['throw_http_exceptions'] = true;
+
+        $driver = new TelegramDriver($request, $configurationWithHttpExceptions, $htmlInterface);
+
+        $message = $driver->getMessages()[0];
+        $throwable = null;
+        try {
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('unparsable_string'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+        } catch (\Throwable $t) {
+            $throwable = $t;
+        }
+        $this->assertNotNull($throwable);
+        $this->assertSame(TelegramConnectionException::class, get_class($throwable));
+        $this->assertNotContains($configurationWithHttpExceptions['telegram']['token'], $throwable->getMessage());
+        $this->assertContains('TELEGRAM-TOKEN-HIDDEN', $throwable->getMessage());
+    }
+
+    /** @test */
+    public function it_retries_after_throwing_an_exception_when_a_message_cant_be_sent_and_configured()
+    {
+        $responseFailed = new Response('', 500);
+        $responseSucceeds = new Response('{"ok": true}', 200);
+
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+            'chat_id' => null,
+            'parse_mode' => 'MarkdownV2',
+            'text' => 'a message'
+        ], [], false)->times(3)->andReturn(clone $responseFailed, clone $responseFailed, $responseSucceeds);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn($responseFailed);
+
+        $configurationWithHttpExceptions = $this->telegramConfig;
+        $configurationWithHttpExceptions['telegram']['throw_http_exceptions'] = true;
+        $configurationWithHttpExceptions['telegram']['retry_http_exceptions'] = 5;
+        $configurationWithHttpExceptions['telegram']['retry_http_exceptions_multiplier'] = 0.1; // to keep the tests going at a reasonable speed.
+
+        $driver = new TelegramDriver($request, $configurationWithHttpExceptions, $htmlInterface);
+
+
+        $message = $driver->getMessages()[0];
+        $throwable = null;
+        $duration = 0.0;
+        try {
+            $start = microtime(true);
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+            $duration = microtime(true) - $start;
+        } catch (\Throwable $t) {
+            $throwable = $t;
+        }
+        $this->assertNull($throwable);
+        $this->assertGreaterThanOrEqual(0.1+0.2, $duration);
+    }
+
+    /** @test */
+    public function it_respects_the_back_off_in_a_429_response()
+    {
+        $response429 = new Response('{"retry_after": 1.5}', 429);
+        $responseSucceeds = new Response('{"ok": true}', 200);
+
+        $htmlInterface = m::mock(Curl::class);
+        $htmlInterface->shouldReceive('post')->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendMessage', [], [
+            'chat_id' => null,
+            'parse_mode' => 'MarkdownV2',
+            'text' => 'a message'
+        ], [], false)->times(2)->andReturn($response429, $responseSucceeds);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn($response429);
+
+        $configurationWithHttpExceptions = $this->telegramConfig;
+        $configurationWithHttpExceptions['telegram']['throw_http_exceptions'] = true;
+        $configurationWithHttpExceptions['telegram']['retry_http_exceptions'] = 5;
+
+        $driver = new TelegramDriver($request, $configurationWithHttpExceptions, $htmlInterface);
+
+
+        $message = $driver->getMessages()[0];
+        $throwable = null;
+        $duration = 0.0;
+        try {
+            $start = microtime(true);
+            $driver->sendPayload($driver->buildServicePayload(
+                \BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('a message'),
+                $message,
+                ['parse_mode' => 'MarkdownV2']
+            ));
+            $duration = microtime(true) - $start;
+        } catch (\Throwable $t) {
+            $throwable = $t;
+        }
+        $this->assertNull($throwable);
+        $this->assertGreaterThanOrEqual(1.5, $duration);
     }
 
     /** @test */
@@ -1052,8 +1382,10 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver = new TelegramDriver($request, $this->telegramConfig, $html);
 
         $message = $driver->getMessages()[0];
-        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test',
-            Audio::url('http://image.url/foo.mp3')), $message));
+        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create(
+            'Test',
+            Audio::url('http://image.url/foo.mp3')
+        ), $message));
     }
 
     /** @test */
@@ -1129,7 +1461,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Location('123', '321')), $message));
     }
 
-  	/** @test */
+    /** @test */
     public function it_can_reply_message_objects_with_contact()
     {
         $responseData = [
@@ -1155,8 +1487,8 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'phone_number' => '0775269856',
                 'first_name' => 'Daniele',
                 'first_name' => 'Rapisarda',
-				'user_id' => '123',
-				'caption' => 'Test',
+                'user_id' => '123',
+                'caption' => 'Test',
             ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
@@ -1166,6 +1498,101 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
 
         $message = $driver->getMessages()[0];
         $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123')), $message));
+    }
+
+    /** @test */
+    public function it_can_reply_message_objects_with_contact()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendContact', [], [
+                'chat_id' => '12345',
+                'phone_number' => '0775269856',
+                'first_name' => 'Daniele',
+                'last_name' => 'Rapisarda',
+                'user_id' => '123',
+                'caption' => 'Test'
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123')), $message));
+    }
+
+    /** @test */
+    public function it_can_reply_message_objects_with_contact_with_vcard()
+    {
+        $responseData = [
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => '12345',
+                ],
+                'date' => '1480369277',
+                'text' => 'Telegram Text',
+            ],
+        ];
+
+        $vcard = 'BEGIN:VCARD
+VERSION:4.0
+N:Gump;Forrest;;Mr.;
+FN:Forrest Gump
+ORG:Bubba Gump Shrimp Co.
+TITLE:Shrimp Man
+PHOTO;MEDIATYPE=image/gif:http://www.example.com/dir_photos/my_photo.gif
+TEL;TYPE=work,voice;VALUE=uri:tel:+1-111-555-1212
+TEL;TYPE=home,voice;VALUE=uri:tel:+1-404-555-1212
+ADR;TYPE=WORK;PREF=1;LABEL="100 Waters Edge\nBaytown\, LA 30314\nUnited States of America":;;100 Waters Edge;Baytown;LA;30314;United States of America
+ADR;TYPE=HOME;LABEL="42 Plantation St.\nBaytown\, LA 30314\nUnited States of America":;;42 Plantation St.;Baytown;LA;30314;United States of America
+EMAIL:forrestgump@example.com
+REV:20080424T195243Z
+x-qq:21588891
+END:VCARD';
+
+        $html = m::mock(Curl::class);
+        $html->shouldReceive('post')
+            ->once()
+            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendContact', [], [
+                'chat_id' => '12345',
+                'phone_number' => '0775269856',
+                'first_name' => 'Daniele',
+                'last_name' => 'Rapisarda',
+                'user_id' => '123',
+                'caption' => 'Test',
+                'vcard' => $vcard,
+            ]);
+
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
+
+        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
+
+        $message = $driver->getMessages()[0];
+        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123', $vcard)), $message));
     }
 
     /** @test */
@@ -1194,11 +1621,14 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
             ],
         ], $htmlInterface);
 
+        $throwable = null;
         try {
             $driver->getUser($driver->getMessages()[0]);
         } catch (\Throwable $t) {
-            $this->assertSame(TelegramException::class, get_class($t));
+            $throwable = $t;
         }
+        $this->assertNotNull($throwable);
+        $this->assertSame(TelegramException::class, get_class($throwable));
     }
 
     /** @test */
