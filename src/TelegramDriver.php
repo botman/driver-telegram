@@ -334,7 +334,7 @@ class TelegramDriver extends HttpDriver
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
         ], $additionalParameters + $defaultAdditionalParameters);
-        
+
         /*
          * If we send a Question with buttons, ignore
          * the text and append the question.

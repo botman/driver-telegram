@@ -1488,7 +1488,7 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'first_name' => 'Daniele',
                 'last_name' => 'Rapisarda',
                 'user_id' => '123',
-                'caption' => 'Test'
+                'caption' => 'Test',
             ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
