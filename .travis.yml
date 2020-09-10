@@ -9,7 +9,7 @@ php:
 
 before_script:
   - travis_retry composer self-update --preview
-  - travis_retry composer install --prefer-dist --no-interaction
+  - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-req=composer-plugin-api
 
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml
