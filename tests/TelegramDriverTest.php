@@ -1486,48 +1486,9 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
                 'chat_id' => '12345',
                 'phone_number' => '0775269856',
                 'first_name' => 'Daniele',
-                'first_name' => 'Rapisarda',
-                'user_id' => '123',
-                'caption' => 'Test',
-            ]);
-
-        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
-        $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
-
-        $driver = new TelegramDriver($request, $this->telegramConfig, $html);
-
-        $message = $driver->getMessages()[0];
-        $driver->sendPayload($driver->buildServicePayload(\BotMan\BotMan\Messages\Outgoing\OutgoingMessage::create('Test', new Contact('0775269856', 'Daniele', 'Rapisarda', '123')), $message));
-    }
-
-    /** @test */
-    public function it_can_reply_message_objects_with_contact()
-    {
-        $responseData = [
-            'update_id' => '1234567890',
-            'message' => [
-                'message_id' => '123',
-                'from' => [
-                    'id' => 'from_id',
-                ],
-                'chat' => [
-                    'id' => '12345',
-                ],
-                'date' => '1480369277',
-                'text' => 'Telegram Text',
-            ],
-        ];
-
-        $html = m::mock(Curl::class);
-        $html->shouldReceive('post')
-            ->once()
-            ->with('https://api.telegram.org/botTELEGRAM-BOT-TOKEN/sendContact', [], [
-                'chat_id' => '12345',
-                'phone_number' => '0775269856',
-                'first_name' => 'Daniele',
                 'last_name' => 'Rapisarda',
                 'user_id' => '123',
-                'caption' => 'Test'
+                'caption' => 'Test',
             ]);
 
         $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');

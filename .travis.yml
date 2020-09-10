@@ -3,10 +3,13 @@ language: php
 php:
   - 7.0
   - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
 
 before_script:
   - travis_retry composer self-update --preview
-  - travis_retry composer install --prefer-dist --no-interaction
+  - travis_retry composer install --prefer-dist --no-interaction --ignore-platform-req=composer-plugin-api
 
 script:
   - vendor/bin/phpunit --coverage-clover=coverage.xml

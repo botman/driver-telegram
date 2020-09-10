@@ -47,8 +47,12 @@ class TelegramFileDriver extends TelegramDriver
      */
     public function loadMessages()
     {
-        $message = new IncomingMessage(File::PATTERN, $this->event->get('from')['id'], $this->event->get('chat')['id'],
-            $this->event);
+        $message = new IncomingMessage(
+            File::PATTERN,
+            $this->event->get('from')['id'],
+            $this->event->get('chat')['id'],
+            $this->event
+        );
         $message->setFiles($this->getFiles());
 
         $this->messages = [$message];
