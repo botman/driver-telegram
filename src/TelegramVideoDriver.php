@@ -47,8 +47,12 @@ class TelegramVideoDriver extends TelegramDriver
      */
     public function loadMessages()
     {
-        $message = new IncomingMessage(Video::PATTERN, $this->event->get('from')['id'], $this->event->get('chat')['id'],
-            $this->event);
+        $message = new IncomingMessage(
+            Video::PATTERN,
+            $this->event->get('from')['id'],
+            $this->event->get('chat')['id'],
+            $this->event
+        );
         $message->setVideos($this->getVideos());
 
         $this->messages = [$message];

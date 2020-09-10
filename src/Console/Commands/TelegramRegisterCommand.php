@@ -44,7 +44,8 @@ class TelegramRegisterCommand extends Command
         $output = json_decode(file_get_contents($url));
 
         if ($output->ok == true && $output->result == true) {
-            $this->info($remove
+            $this->info(
+                $remove
                 ? 'Your bot Telegram\'s webhook has been removed!'
                 : 'Your bot is now set up with Telegram\'s webhook!'
             );
