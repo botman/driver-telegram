@@ -240,11 +240,13 @@ class TelegramDriver extends HttpDriver
                 new IncomingMessage('', $this->queryParameters->get('id'), $this->queryParameters->get('id'), $this->queryParameters),
             ];
         } else {
+            $event = $this->event->all();
+
             $messages = [
                 new IncomingMessage(
                     $this->event->get('text'),
-                    $this->event->get('from')['id'],
-                    $this->event->get('chat')['id'],
+                    isset($event['from']['id']) ? $event['from']['id'] : null,
+                    isset($event['chat']['id']) ? $event['chat']['id'] : null,
                     $this->event
                 ),
             ];
