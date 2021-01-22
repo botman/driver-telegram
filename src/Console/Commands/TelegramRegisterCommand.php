@@ -33,8 +33,12 @@ class TelegramRegisterCommand extends Command
 
         $remove = $this->option('remove', null);
 
+        $defaultWebhook = config('app.url')
+                        .'/bot'
+                        .config('botman.telegram.token');
+
         if (! $remove) {
-            $url .= '?url='.$this->ask('What is the target url for the telegram bot?');
+            $url .= '?url='.$this->ask('What is the target url for the telegram bot?', $defaultWebhook);
         }
 
         $this->info('Using '.$url);
