@@ -68,9 +68,28 @@ class TelegramPhotoDriver extends TelegramDriver
     private function getImages()
     {
         $photos = $this->event->get('photo');
-        $largetstPhoto = array_pop($photos);
+        $caption = $this->event->get('caption');
+
+        if (empty($photos)) {
+            return [];
+        }
+
+        // Order by size in descending order
+        usort($photos, function ($a, $b) {
+            $aSize = $a['width'] * $a['height'];
+            $bSize = $b['width'] * $b['height'];
+
+            if ($aSize == $bSize) {
+                return 0;
+            }
+
+            return ($aSize > $bSize) ? -1 : 1;
+        });
+
+        $photo = reset($photos);
+
         $response = $this->http->get($this->buildApiUrl('getFile'), [
-            'file_id' => $largetstPhoto['file_id'],
+            'file_id' => $photo['file_id'],
         ]);
 
         $responseData = json_decode($response->getContent());
@@ -81,7 +100,7 @@ class TelegramPhotoDriver extends TelegramDriver
 
         $url = $this->buildFileApiUrl($responseData->result->file_path);
 
-        return [new Image($url, $largetstPhoto)];
+        return [(new Image($url, $photo))->title($caption)];
     }
 
     /**

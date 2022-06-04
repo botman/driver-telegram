@@ -167,11 +167,13 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
                         'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
                     ],
                 ],
+                'caption' => 'Hello World!',
             ],
         ], $htmlInterface);
         $message = $driver->getMessages()[0];
         $this->assertSame(Image::PATTERN, $message->getText());
         $this->assertSame('https://api.telegram.org/file/bot/foo', $message->getImages()[0]->getUrl());
+        $this->assertSame('Hello World!', $message->getImages()[0]->getTitle());
         $this->assertSame([
             'file_id' => 'AgADAgAD6KcxG4tSUUnK3tsu3YsxCu8VSw0ABO72aPxtHuGxcGMFAAEC',
         ], $message->getImages()[0]->getPayload());
