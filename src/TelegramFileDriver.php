@@ -5,6 +5,7 @@ namespace BotMan\Drivers\Telegram;
 use BotMan\BotMan\Messages\Attachments\File;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
+use BotMan\Drivers\Telegram\Extensions\Attachments\FileException;
 
 class TelegramFileDriver extends TelegramDriver
 {
@@ -17,7 +18,7 @@ class TelegramFileDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->event->get('from')) && (! is_null($this->event->get('document')));
+        return !is_null($this->event->get('from')) && (!is_null($this->event->get('document')));
     }
 
     /**
@@ -74,7 +75,7 @@ class TelegramFileDriver extends TelegramDriver
         $responseData = json_decode($response->getContent());
 
         if ($response->getStatusCode() !== 200) {
-            throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
+            return [new FileException($responseData->description)];
         }
 
         $url = $this->buildFileApiUrl($responseData->result->file_path);

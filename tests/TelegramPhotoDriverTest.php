@@ -15,7 +15,7 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
 {
     private function getDriver($responseData, $htmlInterface = null)
     {
-        $request = m::mock(Request::class.'[getContent]');
+        $request = m::mock(Request::class . '[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
         if ($htmlInterface === null) {
             $htmlInterface = m::mock(Curl::class);
@@ -71,7 +71,7 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
 
     private function getRequest($responseData)
     {
-        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class.'[getContent]');
+        $request = m::mock(\Symfony\Component\HttpFoundation\Request::class . '[getContent]');
         $request->shouldReceive('getContent')->andReturn(json_encode($responseData));
 
         return $request;
@@ -178,7 +178,7 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
-    public function it_throws_exception_in_get_attachment_url()
+    public function it_returns_an_attachment_exception_in_get_attachment_url()
     {
         $response = new Response('{"ok":false,"error_code":400,"description":"Bad Request: file is too big"}', 400);
         $htmlInterface = m::mock(Curl::class);
@@ -204,11 +204,9 @@ class TelegramPhotoDriverTest extends PHPUnit_Framework_TestCase
             ],
         ], $htmlInterface);
 
-        try {
-            $driver->getMessages()[0];
-        } catch (\Throwable $t) {
-            $this->assertSame(TelegramAttachmentException::class, get_class($t));
-        }
+        $message = $driver->getMessages()[0];
+        $this->assertSame(Image::PATTERN, $message->getText());
+        $this->assertSame('Bad Request: file is too big', $message->getImages()[0]->getException());
     }
 
     /** @test */

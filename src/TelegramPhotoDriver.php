@@ -6,6 +6,7 @@ use BotMan\BotMan\Messages\Attachments\Image;
 use Symfony\Component\HttpFoundation\Request;
 use BotMan\BotMan\Messages\Incoming\IncomingMessage;
 use BotMan\Drivers\Telegram\Exceptions\TelegramAttachmentException;
+use BotMan\Drivers\Telegram\Extensions\Attachments\ImageException;
 
 class TelegramPhotoDriver extends TelegramDriver
 {
@@ -18,7 +19,7 @@ class TelegramPhotoDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->event->get('from')) && ! is_null($this->event->get('photo'));
+        return !is_null($this->event->get('from')) && !is_null($this->event->get('photo'));
     }
 
     /**
@@ -75,7 +76,7 @@ class TelegramPhotoDriver extends TelegramDriver
         $responseData = json_decode($response->getContent());
 
         if ($response->getStatusCode() !== 200) {
-            throw new TelegramAttachmentException('Error retrieving file url: '.$responseData->description);
+            return [new ImageException($responseData->description)];
         }
 
         $url = $this->buildFileApiUrl($responseData->result->file_path);
