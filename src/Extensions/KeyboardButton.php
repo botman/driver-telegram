@@ -111,6 +111,8 @@ class KeyboardButton implements \JsonSerializable
             'request_contact' => $this->requestContact,
             'request_location' => $this->requestLocation,
             'text' => $this->text,
-        ])->filter()->toArray();
+        ])->filter(function ($value, $key) {
+            return !(($value === false || is_null($value));
+        })->toArray();
     }
 }
