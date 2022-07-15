@@ -145,7 +145,7 @@ class TelegramDriver extends HttpDriver
      */
     protected function isValidLoginRequest()
     {
-        $check_hash = $this->queryParameters->get('hash');
+        $check_hash = (string)$this->queryParameters->get('hash');
 
         // Get sorted array of values
         $check = $this->queryParameters
