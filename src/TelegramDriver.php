@@ -290,12 +290,25 @@ class TelegramDriver extends HttpDriver
     private function convertQuestion(Question $question)
     {
         $replies = Collection::make($question->getButtons())->map(function ($button) {
-            return [
-                array_merge([
-                    'text' => (string) $button['text'],
-                    'callback_data' => (string) $button['value'],
-                ], $button['additional']),
-            ];
+            /*
+            * If the button is of a url button (which launches the browser),
+            * then we need to pass the correct callback to the tg API
+            */
+            if ($button['url'] !== null) {
+                return [
+                    array_merge([
+                        'text' => (string) $button['text'],
+                        "url" => (string) $button['url'],
+                    ], $button['additional']),
+                ];
+            } else {
+                return [
+                    array_merge([
+                        'text' => (string) $button['text'],
+                        "callback_data" => (string) $button['value'],
+                    ], $button['additional']),
+                ];
+            }
         });
 
         return $replies->toArray();
