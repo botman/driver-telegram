@@ -294,7 +294,7 @@ class TelegramDriver extends HttpDriver
             * If the button is of a url button (which launches the browser),
             * then we need to pass the correct callback to the tg API
             */
-            if ($button['url'] !== null) {
+            if (isset($button['url'])) {
                 return [
                     array_merge([
                         'text' => (string) $button['text'],
