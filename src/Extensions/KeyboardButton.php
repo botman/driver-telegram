@@ -104,7 +104,7 @@ class KeyboardButton implements \JsonSerializable
      * @since 5.4.0
      */
     #[\ReturnTypeWillChange]
-    public function jsonSerialize()
+    public function jsonSerialize(): array
     {
         return Collection::make([
             'url' => $this->url,
@@ -112,8 +112,7 @@ class KeyboardButton implements \JsonSerializable
             'request_contact' => $this->requestContact,
             'request_location' => $this->requestLocation,
             'text' => $this->text,
-        ])->filter(function ($value, $key) {
-            return !($value === false || is_null($value));
-        })->toArray();
+        ])->reject(fn ($value) => $value === false || is_null($value))
+            ->toArray();
     }
 }
