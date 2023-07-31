@@ -20,6 +20,9 @@ class Keyboard
      */
     protected $rows = [];
 
+    /**
+     * @var string
+     */
     private $type;
 
     /**
