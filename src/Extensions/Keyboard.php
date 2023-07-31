@@ -20,6 +20,8 @@ class Keyboard
      */
     protected $rows = [];
 
+    private $type;
+
     /**
      * @param string $type
      * @return Keyboard
