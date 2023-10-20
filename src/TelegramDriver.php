@@ -61,6 +61,12 @@ class TelegramDriver extends HttpDriver
         $this->event = Collection::make($message);
         $this->config = Collection::make($this->config->get('telegram'));
         $this->queryParameters = Collection::make($request->query);
+
+        $token = $request->headers->get('X-Telegram-Bot-Api-Secret-Token');
+
+        if ($token !== str_replace(':', '_', $this->config->get('token'))) {
+            throw new \Exception('Token mismatch!');
+        }
     }
 
     /**
