@@ -25,6 +25,16 @@ class KeyboardButton implements \JsonSerializable
     protected $callbackData;
 
     /**
+     * @var string
+     */
+    protected $switchInlineQuery;
+
+    /**
+     * @var string
+     */
+    protected $switchInlineQueryCurrentChat;
+
+    /**
      * @var bool
      */
     protected $requestContact = false;
@@ -75,6 +85,28 @@ class KeyboardButton implements \JsonSerializable
     }
 
     /**
+     * @param $switchInlineQuery
+     * @return $this
+     */
+    public function switchInlineQuery($switchInlineQuery)
+    {
+        $this->switchInlineQuery = $switchInlineQuery;
+
+        return $this;
+    }
+
+    /**
+     * @param $switchInlineQueryCurrentChat
+     * @return $this
+     */
+    public function switchInlineQueryCurrentChat($switchInlineQueryCurrentChat)
+    {
+        $this->switchInlineQueryCurrentChat = $switchInlineQueryCurrentChat;
+
+        return $this;
+    }
+
+    /**
      * @param bool $active
      * @return $this
      */
@@ -109,6 +141,8 @@ class KeyboardButton implements \JsonSerializable
         return Collection::make([
             'url' => $this->url,
             'callback_data' => $this->callbackData,
+            'switch_inline_query' => $this->switchInlineQuery,
+            'switch_inline_query_current_chat' => $this->switchInlineQueryCurrentChat,
             'request_contact' => $this->requestContact,
             'request_location' => $this->requestLocation,
             'text' => $this->text,
