@@ -51,7 +51,7 @@ class TelegramContactDriver extends TelegramDriver
             $this->event->get('contact')['phone_number'] ?? '',
             $this->event->get('contact')['first_name'] ?? '',
             $this->event->get('contact')['last_name'] ?? '',
-            $this->event->get('contact')['user_id'],
+            $this->event->get('contact')['user_id'] ?? '',
             $this->event->get('contact')['vcard'] ?? ''
         ));
 
