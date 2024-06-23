@@ -29,6 +29,7 @@ class TelegramRegisterCommand extends Command
     {
         $url = 'https://api.telegram.org/bot'
                 .config('botman.telegram.token')
+                .(config('botman.telegram.test_environment') ? '/test' : '')
                 .'/setWebhook';
 
         $remove = $this->option('remove', null);

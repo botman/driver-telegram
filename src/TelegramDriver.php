@@ -481,7 +481,10 @@ class TelegramDriver extends HttpDriver
      */
     protected function buildApiUrl($endpoint)
     {
-        return self::API_URL.$this->config->get('token').'/'.$endpoint;
+        return self::API_URL
+            .$this->config->get('token')
+            .($this->config->get('test_environment') ? '/test' : '')
+            .'/'.$endpoint;
     }
 
     /**
