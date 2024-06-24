@@ -21,6 +21,11 @@ class Keyboard
     protected $rows = [];
 
     /**
+     * @var string
+     */
+    protected $type;
+
+    /**
      * @param string $type
      * @return Keyboard
      */
