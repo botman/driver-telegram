@@ -69,6 +69,11 @@ class TelegramDriver extends HttpDriver
         'video_chat_participants_invited',
         'web_app_data',
         'reply_markup',
+
+        /**
+         * Handle other updates as events
+         */
+        'pre_checkout_query',
     ];
 
     protected $endpoint = 'sendMessage';
@@ -85,14 +90,18 @@ class TelegramDriver extends HttpDriver
     {
         $this->payload = new ParameterBag((array) json_decode($request->getContent(), true));
 
-        $message = $this->payload->get('message');
+        $message = $this->payload->get('message')
+            ?? $this->payload->get('edited_message');
+
         if (empty($message)) {
-            $message = $this->payload->get('edited_message');
+            if (! empty($this->payload->get('channel_post'))) {
+                $message = $this->payload->get('channel_post');
+                $message['from'] = ['id' => 0];
+            } elseif (! empty($this->payload->get('pre_checkout_query'))) {
+                $message['pre_checkout_query'] = $this->payload->get('pre_checkout_query');
+            }
         }
-        if (empty($message)) {
-            $message = $this->payload->get('channel_post');
-            $message['from'] = ['id' => 0];
-        }
+
         $this->event = Collection::make($message);
         $this->config = Collection::make($this->config->get('telegram'));
         $this->queryParameters = Collection::make($request->query);
@@ -145,7 +154,9 @@ class TelegramDriver extends HttpDriver
             return in_array($key, ['audio', 'voice', 'video', 'photo', 'location', 'contact', 'document']);
         })->isEmpty();
 
-        return $noAttachments && (!is_null($this->event->get('from')) || !is_null($this->payload->get('callback_query'))) && !is_null($this->payload->get('update_id'));
+        return $noAttachments
+            && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query')) || ! is_null($this->payload->get('pre_checkout_query')))
+            && ! is_null($this->payload->get('update_id'));
     }
 
     /**
