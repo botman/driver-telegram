@@ -14,6 +14,7 @@ class Keyboard
 
     protected $oneTimeKeyboard = false;
     protected $resizeKeyboard = false;
+    protected $inputFieldPlaceholder = '';
 
     /**
      * @var array
@@ -77,6 +78,17 @@ class Keyboard
     }
 
     /**
+     * @param  string  $text
+     * @return $this
+     */
+    public function inputFieldPlaceholder($text)
+    {
+        $this->inputFieldPlaceholder = $text;
+
+        return $this;
+    }
+
+    /**
      * Add a new row to the Keyboard.
      * @param KeyboardButton[] $buttons
      * @return Keyboard
@@ -98,6 +110,7 @@ class Keyboard
                 $this->type => $this->rows,
                 'one_time_keyboard' => $this->oneTimeKeyboard,
                 'resize_keyboard' => $this->resizeKeyboard,
+                'input_field_placeholder' => $this->inputFieldPlaceholder,
             ])->filter()),
         ];
     }
