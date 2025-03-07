@@ -18,7 +18,9 @@ class TelegramFileDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return !is_null($this->event->get('from')) && (!is_null($this->event->get('document')));
+        return !is_null($this->event->get('from'))
+            && (!is_null($this->event->get('document')))
+            && $this->isValidToken();
     }
 
     /**

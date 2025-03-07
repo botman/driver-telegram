@@ -18,7 +18,9 @@ class TelegramAudioDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return !is_null($this->event->get('from')) && (!is_null($this->event->get('audio')) || !is_null($this->event->get('voice')));
+        return !is_null($this->event->get('from'))
+            && (!is_null($this->event->get('audio')) || !is_null($this->event->get('voice')))
+            && $this->isValidToken();
     }
 
     /**

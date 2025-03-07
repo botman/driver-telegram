@@ -16,7 +16,9 @@ class TelegramLocationDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->event->get('from')) && ! is_null($this->event->get('location'));
+        return ! is_null($this->event->get('from'))
+            && ! is_null($this->event->get('location'))
+            && $this->isValidToken();
     }
 
     /**
