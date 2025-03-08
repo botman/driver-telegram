@@ -16,7 +16,9 @@ class TelegramContactDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->event->get('from')) && ! is_null($this->event->get('contact'));
+        return ! is_null($this->event->get('from'))
+            && ! is_null($this->event->get('contact'))
+            && $this->isValidToken();
     }
 
     /**

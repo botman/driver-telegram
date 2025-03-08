@@ -12,5 +12,6 @@ return [
     |
     */
     'token' => env('TELEGRAM_TOKEN'),
+    'api_secret_token' => env('TELEGRAM_API_SECRET_TOKEN', null),
     'test_environment' => env('TELEGRAM_TEST_ENVIRONMENT', false),
 ];

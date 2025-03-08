@@ -83,6 +83,9 @@ class TelegramDriver extends HttpDriver
     /** @var Collection */
     protected $queryParameters;
 
+    /** @var Request */
+    protected $request;
+
     /**
      * @param Request $request
      */
@@ -105,6 +108,7 @@ class TelegramDriver extends HttpDriver
         $this->event = Collection::make($message);
         $this->config = Collection::make($this->config->get('telegram'));
         $this->queryParameters = Collection::make($request->query);
+        $this->request = $request;
     }
 
     /**
@@ -156,7 +160,8 @@ class TelegramDriver extends HttpDriver
 
         return $noAttachments
             && (! is_null($this->event->get('from')) || ! is_null($this->payload->get('callback_query')) || ! is_null($this->payload->get('pre_checkout_query')))
-            && ! is_null($this->payload->get('update_id'));
+            && ! is_null($this->payload->get('update_id'))
+            && $this->isValidToken();
     }
 
     /**
@@ -181,6 +186,18 @@ class TelegramDriver extends HttpDriver
         }
 
         return $event;
+    }
+
+    /**
+     * Validate the Telegram API secret token.
+     *
+     * @return bool
+     */
+    protected function isValidToken()
+    {
+        $secretToken = $this->config->get('api_secret_token');
+
+        return ! $secretToken || $this->request->headers->get('X-Telegram-Bot-Api-Secret-Token') === $secretToken;
     }
 
     /**

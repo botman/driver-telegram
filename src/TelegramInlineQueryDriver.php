@@ -18,7 +18,8 @@ class TelegramInlineQueryDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return ! is_null($this->payload->get('inline_query'));
+        return ! is_null($this->payload->get('inline_query'))
+            && $this->isValidToken();
     }
 
     /**
