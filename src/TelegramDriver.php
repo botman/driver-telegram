@@ -324,6 +324,126 @@ class TelegramDriver extends HttpDriver
     }
 
     /**
+     * @return Response
+     */
+    public function uploadsPhoto(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'upload_photo',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function recordsVideo(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'record_video',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function uploadsVideo(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'upload_video',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function recordsVoice(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'record_voice',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function uploadsVoice(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'upload_voice',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function uploadsDocument(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'upload_document',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function choosesSticker(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'choose_sticker',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function findsLocation(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'find_location',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function recordsVideoNote(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'record_video_note',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
+     * @return Response
+     */
+    public function uploadsVideoNote(IncomingMessage $matchingMessage)
+    {
+        $parameters = [
+            'action' => 'upload_video_note',
+        ];
+
+        return $this->sendRequest('sendChatAction', $parameters, $matchingMessage);
+    }
+
+    /**
      * Convert a Question object into a valid
      * quick reply response object.
      *
