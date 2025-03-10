@@ -19,7 +19,9 @@ class TelegramPhotoDriver extends TelegramDriver
      */
     public function matchesRequest()
     {
-        return !is_null($this->event->get('from')) && !is_null($this->event->get('photo'));
+        return !is_null($this->event->get('from'))
+            && !is_null($this->event->get('photo'))
+            && $this->isValidToken();
     }
 
     /**
