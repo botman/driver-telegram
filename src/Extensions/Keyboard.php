@@ -12,6 +12,7 @@ class Keyboard
     const TYPE_KEYBOARD = 'keyboard';
     const TYPE_INLINE = 'inline_keyboard';
 
+    protected $parseMode = 'Markdown';
     protected $oneTimeKeyboard = false;
     protected $resizeKeyboard = false;
     protected $inputFieldPlaceholder = '';
@@ -67,6 +68,17 @@ class Keyboard
     }
 
     /**
+     * @param $mode
+     * @return $this
+     */
+    public function conParseMode($mode = 'Markdown')
+    {
+        $this->parseMode = $mode;
+
+        return $this;
+    }
+
+    /**
      * @param bool $active
      * @return $this
      */
@@ -106,6 +118,7 @@ class Keyboard
     public function toArray()
     {
         return [
+            'parse_mode' => $this->parseMode,
             'reply_markup' => json_encode(Collection::make([
                 $this->type => $this->rows,
                 'one_time_keyboard' => $this->oneTimeKeyboard,
