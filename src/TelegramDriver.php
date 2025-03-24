@@ -565,10 +565,13 @@ class TelegramDriver extends HttpDriver
         $this->endpoint = 'sendMessage';
 
         $recipient = $matchingMessage->getRecipient() === '' ? $matchingMessage->getSender() : $matchingMessage->getRecipient();
+        $messageThreadId = isset($matchingMessage->getPayload()['is_topic_message']) && $matchingMessage->getPayload()['is_topic_message'] === true
+            ? $matchingMessage->getPayload()['message_thread_id']
+            : null;
         $defaultAdditionalParameters = $this->config->get('default_additional_parameters', []);
         $parameters = array_merge_recursive([
             'chat_id' => $recipient,
-            'message_thread_id' => $matchingMessage->getPayload()['message_thread_id'] ?? null,
+            'message_thread_id' => $messageThreadId,
         ], $additionalParameters + $defaultAdditionalParameters);
 
         /*
@@ -666,7 +669,9 @@ class TelegramDriver extends HttpDriver
     {
         $parameters = array_replace_recursive([
             'chat_id' => $matchingMessage->getRecipient(),
-            'message_thread_id' => $matchingMessage->getPayload()['message_thread_id'] ?? null,
+            'message_thread_id' => isset($matchingMessage->getPayload()['is_topic_message']) && $matchingMessage->getPayload()['is_topic_message'] === true
+                ? $matchingMessage->getPayload()['message_thread_id']
+                : null,
         ], $parameters);
 
         if ($this->config->get('throw_http_exceptions')) {
