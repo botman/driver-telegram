@@ -20,6 +20,11 @@ class KeyboardButton implements \JsonSerializable
     protected $url;
 
     /**
+     * @var array
+     */
+    protected $webApp;
+
+    /**
      * @var string
      */
     protected $callbackData;
@@ -69,6 +74,18 @@ class KeyboardButton implements \JsonSerializable
     public function url($url)
     {
         $this->url = $url;
+
+        return $this;
+    }
+
+    /**
+     * @return $this
+     */
+    public function webApp($url)
+    {
+        $this->webApp = [
+            'url' => $url,
+        ];
 
         return $this;
     }
@@ -140,6 +157,7 @@ class KeyboardButton implements \JsonSerializable
     {
         return Collection::make([
             'url' => $this->url,
+            'web_app' => $this->webApp,
             'callback_data' => $this->callbackData,
             'switch_inline_query' => $this->switchInlineQuery,
             'switch_inline_query_current_chat' => $this->switchInlineQueryCurrentChat,
