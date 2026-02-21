@@ -1,4 +1,4 @@
-name: 'Laravel Tests'
+name: Laravel Tests
 
 on:
   push:
@@ -9,10 +9,11 @@ on:
 jobs:
   tests-on-php71:
     runs-on: ubuntu-latest
+
     strategy:
       fail-fast: false
       matrix:
-        php: [7.4, 7.3, 7.2, 7.1]
+        php: [7.1, 7.2, 7.3, 7.4, '8.3', '8.4', '8.5']
 
     name: PHP${{ matrix.php }}
 
@@ -36,5 +37,6 @@ jobs:
       - name: Install dependencies
         run: |
           composer install --prefer-dist --no-interaction --no-suggest
+
       - name: Execute tests
         run: vendor/bin/phpunit
