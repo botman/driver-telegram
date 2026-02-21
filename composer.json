@@ -21,7 +21,7 @@
     },
     "require-dev": {
         "botman/studio-addons": "^1.0",
-        "illuminate/contracts": "^5.5",
+        "illuminate/contracts": "^5.5|^13.0",
         "phpunit/phpunit": "^5.0",
         "mockery/mockery": "^1.1"
     },
