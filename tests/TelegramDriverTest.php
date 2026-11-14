@@ -215,6 +215,37 @@ class TelegramDriverTest extends PHPUnit_Framework_TestCase
     }
 
     /** @test */
+    public function it_does_not_call_events_with_invalid_secret_token()
+    {
+        $request = $this->getRequest([
+            'update_id' => '1234567890',
+            'message' => [
+                'message_id' => '123',
+                'from' => [
+                    'id' => 'from_id',
+                ],
+                'chat' => [
+                    'id' => 'chat_id',
+                ],
+                'date' => '1480369277',
+                'group_chat_created' => true,
+            ],
+        ]);
+
+        $driver = new TelegramDriver($request, [
+            'telegram' => [
+                'api_secret_token' => 'TELEGRAM-SECRET-TOKEN',
+            ],
+        ], m::mock(Curl::class));
+        $this->assertFalse($driver->hasMatchingEvent());
+
+        $request->headers->set('X-Telegram-Bot-Api-Secret-Token', 'TELEGRAM-SECRET-TOKEN');
+        $event = $driver->hasMatchingEvent();
+        $this->assertInstanceOf(GenericEvent::class, $event);
+        $this->assertSame('group_chat_created', $event->getName());
+    }
+
+    /** @test */
     public function it_calls_left_chat_member_event()
     {
         $driver = $this->getDriver([

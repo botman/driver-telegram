@@ -176,6 +176,10 @@ class TelegramDriver extends HttpDriver
             $event->setName(self::LOGIN_EVENT);
         }
 
+        if (! $this->isValidToken()) {
+            return $event;
+        }
+
         foreach (self::GENERIC_EVENTS as $genericEvent) {
             if ($this->event->has($genericEvent)) {
                 $event = new GenericEvent($this->event->get($genericEvent));
